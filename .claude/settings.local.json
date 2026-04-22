@@ -1,0 +1,39 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest the-elevator-shop --typescript --tailwind --eslint --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(cp -r the-elevator-shop/. .)",
+      "Bash(rm -rf the-elevator-shop)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); const icons = Object.keys\\(l\\).filter\\(k => ['Twitter','Facebook','Linkedin','Instagram','X','Share2'].includes\\(k\\)\\); console.log\\(icons\\)\")",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(cp \"C:\\\\Users\\\\josty\\\\.claude\\\\projects\\\\d--Antigravity-TheElevatorShop\\\\3970c432-d836-4bf5-8252-ba4a5bac1537\\\\tool-results\\\\webfetch-1776573180704-tvufyj.bin\" /tmp/design.gz)",
+      "Bash(gunzip -f /tmp/design.gz)",
+      "Read(//tmp/**)",
+      "Bash(mkdir -p /tmp/design_files)",
+      "Bash(tar -xf /tmp/design -C /tmp/design_files)",
+      "Bash(taskkill /PID 23040 /F)",
+      "Bash(taskkill //PID 25964 //F)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s http://localhost:3000/api/zoho/products)",
+      "Bash(python -c \"import json,sys; items=json.load\\(sys.stdin\\); print\\([\\(p['id'],p['image']\\) for p in items[:5]]\\)\")",
+      "Bash(node -e \"const d=require\\('fs'\\).readFileSync\\('/dev/stdin','utf8'\\); const items=JSON.parse\\(d\\); items.slice\\(0,3\\).forEach\\(p=>console.log\\(p.id, p.image\\)\\)\")",
+      "Bash(curl -s \"http://localhost:3000/api/zoho/products\" -o \"d:/Antigravity/TheElevatorShop/tmp_products.json\")",
+      "Bash(node -e \"const items=require\\('d:/Antigravity/TheElevatorShop/tmp_products.json'\\); items.slice\\(0,3\\).forEach\\(p=>console.log\\(p.id, JSON.stringify\\(p.image\\)\\)\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code} %{content_type}\" \"http://localhost:3000/api/zoho/image/7137174000000103080\")",
+      "Bash(curl -s \"http://localhost:3000/api/zoho/image/7137174000000103080\" -o /dev/null)",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"const d=require\\('d:/Antigravity/TheElevatorShop/tmp_products.json'\\); if\\(d.error\\){console.log\\('RATE LIMITED'\\);process.exit\\(1\\)} console.log\\('OK, total:', d.length\\); d.forEach\\(p=>console.log\\(p.name\\)\\)\")",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/about)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)"
+    ]
+  }
+}
