@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-const TOKEN_FILE = path.join(process.cwd(), ".next", "zoho-token.json");
+const TOKEN_FILE = process.env.NETLIFY
+  ? path.join("/tmp", "zoho-token.json")
+  : path.join(process.cwd(), ".next", "zoho-token.json");
 
 interface TokenCache {
   access_token: string;

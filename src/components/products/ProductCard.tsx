@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Package, ShoppingCart, Heart } from "lucide-react";
+import {
+  Package, ShoppingCart, Heart,
+  Cable, Zap, Wrench, ShieldCheck, Box, Bolt, CircuitBoard,
+} from "lucide-react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MockProduct } from "@/lib/mock-data";
@@ -15,6 +18,17 @@ const CATEGORY_COLORS: Record<string, string> = {
   Mechanical: "bg-gray-100 text-gray-700",
   Safety: "bg-green-50 text-green-700",
   Controls: "bg-purple-50 text-purple-700",
+};
+
+const CATEGORY_PLACEHOLDER: Record<string, { bg: string; icon: React.ElementType }> = {
+  "Conduit & Fittings": { bg: "from-slate-100 to-slate-200", icon: Cable },
+  "Wire & Cable":       { bg: "from-yellow-50 to-yellow-100", icon: Zap },
+  Fasteners:            { bg: "from-zinc-100 to-zinc-200", icon: Bolt },
+  "Elevator Components":{ bg: "from-orange-50 to-orange-100", icon: CircuitBoard },
+  Electrical:           { bg: "from-amber-50 to-amber-100", icon: Zap },
+  Tools:                { bg: "from-stone-100 to-stone-200", icon: Wrench },
+  "Safety & PPE":       { bg: "from-green-50 to-green-100", icon: ShieldCheck },
+  Supplies:             { bg: "from-sky-50 to-sky-100", icon: Box },
 };
 
 function formatPrice(cents: number) {
@@ -78,11 +92,18 @@ export default function ProductCard({ product, className, onClick }: ProductCard
               unoptimized
             />
           </div>
-        ) : (
-          <div className={clsx("w-full h-full flex items-center justify-center transition-all duration-300", added && "blur-sm")}>
-            <Package className="w-16 h-16 text-gray-300" strokeWidth={1} />
-          </div>
-        )}
+        ) : (() => {
+          const ph = CATEGORY_PLACEHOLDER[product.category] ?? { bg: "from-gray-100 to-gray-200", icon: Package };
+          const PlaceholderIcon = ph.icon;
+          return (
+            <div className={clsx(`w-full h-full bg-gradient-to-br ${ph.bg} flex flex-col items-center justify-center gap-2 transition-all duration-300`, added && "blur-sm")}>
+              <PlaceholderIcon className="w-12 h-12 text-gray-400/70" strokeWidth={1.25} />
+              <span className="text-[10px] font-medium text-gray-400 tracking-wide uppercase px-3 text-center leading-tight line-clamp-2">
+                {product.category}
+              </span>
+            </div>
+          );
+        })()}
 
         {/* Category badge */}
         <span className={clsx("absolute top-3 right-3 text-[10px] font-semibold px-2 py-0.5 rounded-full z-10", categoryColor)}>

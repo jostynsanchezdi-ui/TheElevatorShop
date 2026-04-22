@@ -4,7 +4,18 @@ import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx } from "clsx";
-import { X, Heart, ShoppingCart, Package } from "lucide-react";
+import { X, Heart, ShoppingCart, Package, Cable, Zap, Wrench, ShieldCheck, Box, Bolt, CircuitBoard } from "lucide-react";
+
+const CATEGORY_PLACEHOLDER: Record<string, { bg: string; icon: React.ElementType }> = {
+  "Conduit & Fittings": { bg: "from-slate-100 to-slate-200", icon: Cable },
+  "Wire & Cable":       { bg: "from-yellow-50 to-yellow-100", icon: Zap },
+  Fasteners:            { bg: "from-zinc-100 to-zinc-200", icon: Bolt },
+  "Elevator Components":{ bg: "from-orange-50 to-orange-100", icon: CircuitBoard },
+  Electrical:           { bg: "from-amber-50 to-amber-100", icon: Zap },
+  Tools:                { bg: "from-stone-100 to-stone-200", icon: Wrench },
+  "Safety & PPE":       { bg: "from-green-50 to-green-100", icon: ShieldCheck },
+  Supplies:             { bg: "from-sky-50 to-sky-100", icon: Box },
+};
 import type { MockProduct } from "@/lib/mock-data";
 import { useProducts } from "@/lib/use-products";
 import { useWishlist } from "@/lib/wishlist-store";
@@ -80,11 +91,15 @@ function RelatedTile({ product, onSelect }: RelatedTileProps) {
           <div className="absolute inset-[12.5%]">
             <Image src={product.image} alt={product.name} fill className="object-contain" unoptimized />
           </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-8 h-8 text-gray-300" strokeWidth={1} />
-          </div>
-        )}
+        ) : (() => {
+          const ph = CATEGORY_PLACEHOLDER[product.category] ?? { bg: "from-gray-100 to-gray-200", icon: Package };
+          const PlaceholderIcon = ph.icon;
+          return (
+            <div className={`w-full h-full bg-gradient-to-br ${ph.bg} flex items-center justify-center`}>
+              <PlaceholderIcon className="w-8 h-8 text-gray-400/70" strokeWidth={1.25} />
+            </div>
+          );
+        })()}
       </div>
       <p className="text-xs font-medium text-[#2C3A48] leading-tight line-clamp-2">
         {product.name}
@@ -170,11 +185,18 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
               <div className={clsx("absolute inset-[12.5%] transition-all duration-300", added && "blur-sm scale-105")}>
                 <Image src={product.image} alt={product.name} fill className="object-contain" unoptimized />
               </div>
-            ) : (
-              <div className={clsx("w-full h-full flex items-center justify-center transition-all duration-300", added && "blur-sm")}>
-                <Package className="w-24 h-24 text-gray-200" strokeWidth={1} />
-              </div>
-            )}
+            ) : (() => {
+              const ph = CATEGORY_PLACEHOLDER[product.category] ?? { bg: "from-gray-100 to-gray-200", icon: Package };
+              const PlaceholderIcon = ph.icon;
+              return (
+                <div className={clsx(`w-full h-full bg-gradient-to-br ${ph.bg} flex flex-col items-center justify-center gap-2 transition-all duration-300`, added && "blur-sm")}>
+                  <PlaceholderIcon className="w-16 h-16 text-gray-400/70" strokeWidth={1.25} />
+                  <span className="text-[10px] font-medium text-gray-400 tracking-wide uppercase text-center px-4 line-clamp-2">
+                    {product.category}
+                  </span>
+                </div>
+              );
+            })()}
             <AnimatePresence>
               {added && (
                 <motion.div
