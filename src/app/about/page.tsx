@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import {
   Truck, Warehouse, BadgeCheck, HeadphonesIcon,
   Globe, Phone, Mail, ArrowRight, MapPin, Package,
@@ -10,12 +10,12 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 // ── Animation helpers ───────────────────────────────────────────────────────
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-const stagger = {
+const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12 } },
 };
