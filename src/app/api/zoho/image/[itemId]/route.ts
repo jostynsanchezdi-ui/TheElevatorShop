@@ -26,7 +26,10 @@ export async function GET(
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": res.headers.get("content-type") ?? "image/jpeg",
-        "Cache-Control": "public, max-age=86400",
+        // Browser: 24h
+        "Cache-Control": "public, max-age=86400, stale-while-revalidate=3600",
+        // Netlify CDN: 7 days, persists across deploys
+        "Netlify-CDN-Cache-Control": "public, durable, s-maxage=604800, stale-while-revalidate=86400",
       },
     });
   } catch {
