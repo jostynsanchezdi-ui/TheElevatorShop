@@ -124,7 +124,7 @@ function OrderCard({ order }: { order: Order }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-[#2C3A48] truncate">{item.name}</p>
-                      <p className="text-[10px] text-gray-400">SKU: {item.sku} · Qty: {item.quantity}</p>
+                      <p className="text-[10px] text-gray-400">Qty: {item.quantity}</p>
                     </div>
                     <p className="text-xs font-bold text-[#2C3A48] shrink-0">
                       {formatPrice(item.price * item.quantity)}

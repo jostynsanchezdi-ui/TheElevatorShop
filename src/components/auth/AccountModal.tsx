@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Lock, User, Phone, Building2, Check } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -13,6 +13,11 @@ interface AccountModalProps {
 
 export default function AccountModal({ open, onClose }: AccountModalProps) {
   const { user, setUser } = useAuth();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
   const [form, setForm] = useState({ full_name: "", phone: "", company: "" });
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -54,7 +59,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
     if (err) { setError(err.message); return; }
     if (data.user) setUser(data.user);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    timerRef.current = setTimeout(() => setSaved(false), 2000);
   };
 
   const initials = form.full_name

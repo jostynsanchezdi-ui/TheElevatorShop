@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, X } from "lucide-react";
 import { useAuthModal } from "@/lib/auth-modal-store";
@@ -9,6 +9,11 @@ import { supabase } from "@/lib/supabase";
 export default function AuthModal() {
   const { mode, close, open } = useAuthModal();
   const isOpen = mode !== null;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
 
   // Login state
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
@@ -49,7 +54,7 @@ export default function AuthModal() {
     setLoginLoading(false);
     if (error) { setLoginError(error.message); return; }
     setLoginDone(true);
-    setTimeout(() => { setLoginDone(false); close(); }, 2200);
+    timerRef.current = setTimeout(() => { setLoginDone(false); close(); }, 2200);
   };
 
   const handleRegSubmit = async (e: React.FormEvent) => {

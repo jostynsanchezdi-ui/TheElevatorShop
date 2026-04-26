@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import {
   Package, ShoppingCart, Heart,
-  Cable, Zap, Wrench, ShieldCheck, Box, Bolt, CircuitBoard,
+  Plug, Zap, Wrench, ShieldCheck, Box, Settings, Cpu,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,10 +21,10 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const CATEGORY_PLACEHOLDER: Record<string, { bg: string; icon: React.ElementType }> = {
-  "Conduit & Fittings": { bg: "from-slate-100 to-slate-200", icon: Cable },
+  "Conduit & Fittings": { bg: "from-slate-100 to-slate-200", icon: Plug },
   "Wire & Cable":       { bg: "from-yellow-50 to-yellow-100", icon: Zap },
-  Fasteners:            { bg: "from-zinc-100 to-zinc-200", icon: Bolt },
-  "Elevator Components":{ bg: "from-orange-50 to-orange-100", icon: CircuitBoard },
+  Fasteners:            { bg: "from-zinc-100 to-zinc-200", icon: Settings },
+  "Elevator Components":{ bg: "from-orange-50 to-orange-100", icon: Cpu },
   Electrical:           { bg: "from-amber-50 to-amber-100", icon: Zap },
   Tools:                { bg: "from-stone-100 to-stone-200", icon: Wrench },
   "Safety & PPE":       { bg: "from-green-50 to-green-100", icon: ShieldCheck },
@@ -181,7 +181,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
 
       {/* Content */}
       <div className="p-4 flex flex-col flex-1 gap-2">
-        <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2">
+        <h3 className="text-sm font-semibold text-gray-900 leading-snug line-clamp-2 min-h-[2.5rem]">
           {product.name}
         </h3>
 
@@ -202,7 +202,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
           {/* Counter */}
           <div
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-2 py-1.5 shrink-0"
+            className={clsx("flex items-center gap-1.5 border rounded-lg px-2 py-1.5 shrink-0", product.stock <= 0 ? "border-gray-100 opacity-40 pointer-events-none" : "border-gray-200")}
           >
             <button onClick={(e) => handleQty(e, -1)} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium">−</button>
             <span className="w-5 text-center text-xs font-semibold text-[#2C3A48]">{quantity}</span>
@@ -212,8 +212,14 @@ export default function ProductCard({ product, className, onClick }: ProductCard
           {/* Add to Cart */}
           <motion.button
             onClick={handleAddToCart}
-            whileTap={{ scale: 0.96 }}
-            className="relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold border border-gray-200 text-gray-700 rounded-lg overflow-hidden"
+            disabled={product.stock <= 0}
+            whileTap={product.stock > 0 ? { scale: 0.96 } : {}}
+            className={clsx(
+              "relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold border rounded-lg overflow-hidden transition-colors",
+              product.stock <= 0
+                ? "border-gray-100 text-gray-300 bg-gray-50 cursor-not-allowed"
+                : "border-gray-200 text-gray-700 hover:border-[#E87B3A] hover:text-[#E87B3A]"
+            )}
           >
             <AnimatePresence>
               {ripple && (
@@ -224,7 +230,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
               )}
             </AnimatePresence>
             <ShoppingCart className="w-3.5 h-3.5 relative z-10" />
-            <span className="relative z-10">Add to Cart</span>
+            <span className="relative z-10">{product.stock <= 0 ? "Out of Stock" : "Add to Cart"}</span>
           </motion.button>
         </div>
       </div>

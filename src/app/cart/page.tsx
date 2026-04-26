@@ -124,8 +124,7 @@ export default function CartPage() {
                             </div>
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-[#2C3A48] truncate">{item.product.name}</p>
-                              <p className="text-xs text-gray-400 mt-0.5">SKU: {item.product.sku}</p>
-                              <p className="text-xs text-gray-400">{item.product.category}</p>
+                              <p className="text-xs text-gray-400 mt-0.5">{item.product.category}</p>
                             </div>
                           </div>
 

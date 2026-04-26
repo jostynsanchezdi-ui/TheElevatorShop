@@ -104,7 +104,7 @@ export default function WishlistPage() {
                     <div className="p-4 flex flex-col flex-1 gap-3">
                       <div className="flex-1">
                         <p className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase mb-1">
-                          {product.sku} · {product.category}
+                          {product.category}
                         </p>
                         <h3
                           className="text-sm font-semibold text-[#2C3A48] line-clamp-2 cursor-pointer hover:text-[#E87B3A] transition-colors"

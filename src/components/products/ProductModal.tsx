@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx } from "clsx";
-import { X, Heart, ShoppingCart, Package, Cable, Zap, Wrench, ShieldCheck, Box, Bolt, CircuitBoard } from "lucide-react";
+import { X, Heart, ShoppingCart, Package, Plug, Zap, Wrench, ShieldCheck, Box, Settings, Cpu } from "lucide-react";
 
 const CATEGORY_PLACEHOLDER: Record<string, { bg: string; icon: React.ElementType }> = {
-  "Conduit & Fittings": { bg: "from-slate-100 to-slate-200", icon: Cable },
+  "Conduit & Fittings": { bg: "from-slate-100 to-slate-200", icon: Plug },
   "Wire & Cable":       { bg: "from-yellow-50 to-yellow-100", icon: Zap },
-  Fasteners:            { bg: "from-zinc-100 to-zinc-200", icon: Bolt },
-  "Elevator Components":{ bg: "from-orange-50 to-orange-100", icon: CircuitBoard },
+  Fasteners:            { bg: "from-zinc-100 to-zinc-200", icon: Settings },
+  "Elevator Components":{ bg: "from-orange-50 to-orange-100", icon: Cpu },
   Electrical:           { bg: "from-amber-50 to-amber-100", icon: Zap },
   Tools:                { bg: "from-stone-100 to-stone-200", icon: Wrench },
   "Safety & PPE":       { bg: "from-green-50 to-green-100", icon: ShieldCheck },
@@ -127,13 +127,18 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
   const [added, setAdded] = useState(false);
   const [ripple, setRipple] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    return () => { timersRef.current.forEach(clearTimeout); };
+  }, []);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) addToCart(product);
     setAdded(true);
     setRipple(true);
-    setTimeout(() => setRipple(false), 400);
-    setTimeout(() => setAdded(false), 2000);
+    timersRef.current.push(setTimeout(() => setRipple(false), 400));
+    timersRef.current.push(setTimeout(() => setAdded(false), 2000));
   };
 
   const related = useMemo(() => {
@@ -226,9 +231,8 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
 
         {/* ── Right: details ── */}
         <div className="flex-1 flex flex-col gap-3.5 min-w-0">
-          {/* SKU */}
           <p className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase">
-            SKU: {product.sku} &nbsp;·&nbsp; {product.category}
+            {product.category}
           </p>
 
           {/* Name */}
@@ -258,7 +262,7 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
           {/* Quantity + Add to Cart */}
           <div className="flex items-center gap-3 mt-1">
             {/* Quantity counter */}
-            <div className="flex items-center gap-2 border border-gray-200 rounded-xl px-3 py-2 shrink-0">
+            <div className={clsx("flex items-center gap-2 border rounded-xl px-3 py-2 shrink-0", product.stock <= 0 ? "border-gray-100 opacity-40 pointer-events-none" : "border-gray-200")}>
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                 className="w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-[#E87B3A] hover:bg-orange-50 transition-colors"
@@ -278,8 +282,14 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
             {/* Add to Cart */}
             <motion.button
               onClick={handleAddToCart}
-              whileTap={{ scale: 0.96 }}
-              className="relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold bg-[#2C3A48] text-white rounded-xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2C3A48]"
+              disabled={product.stock <= 0}
+              whileTap={product.stock > 0 ? { scale: 0.96 } : {}}
+              className={clsx(
+                "relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl overflow-hidden focus:outline-none",
+                product.stock <= 0
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-[#2C3A48] text-white focus-visible:ring-2 focus-visible:ring-[#2C3A48]"
+              )}
               aria-label={`Add ${product.name} to cart`}
             >
               <AnimatePresence>
@@ -291,7 +301,7 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
                 )}
               </AnimatePresence>
               <ShoppingCart className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">Add to Cart</span>
+              <span className="relative z-10">{product.stock <= 0 ? "Out of Stock" : "Add to Cart"}</span>
             </motion.button>
           </div>
 

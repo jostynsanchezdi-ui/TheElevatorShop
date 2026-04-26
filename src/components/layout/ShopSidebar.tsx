@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  Package, Cable, Zap, Wrench, Shield, ChevronDown,
+  Package, Plug, Zap, Wrench, Shield, ChevronDown,
   ArrowUpDown, Hammer, Lightbulb, Layers, Settings,
 } from "lucide-react";
 import { useState } from "react";
@@ -12,7 +12,7 @@ const ORANGE = "#E87B3A";
 
 function getCategoryIcon(cat: string): React.ReactNode {
   const n = cat.toLowerCase();
-  if (n.includes("conduit") || n.includes("fitting")) return <Cable className="w-4 h-4" />;
+  if (n.includes("conduit") || n.includes("fitting")) return <Plug className="w-4 h-4" />;
   if (n.includes("wire") || n.includes("cable"))       return <Zap className="w-4 h-4" />;
   if (n.includes("fastener"))                          return <Settings className="w-4 h-4" />;
   if (n.includes("elevator"))                          return <ArrowUpDown className="w-4 h-4" />;

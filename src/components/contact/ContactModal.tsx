@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Phone, ArrowRight, CheckCircle } from "lucide-react";
 import { useContactModal } from "@/lib/contact-modal-store";
@@ -21,6 +21,11 @@ export default function ContactModal() {
   const [form, setForm] = useState({ name: "", email: "", service: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    return () => { timersRef.current.forEach(clearTimeout); };
+  }, []);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") hide(); };
@@ -39,12 +44,12 @@ export default function ContactModal() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSubmitted(true); }, 1200);
+    timersRef.current.push(setTimeout(() => { setLoading(false); setSubmitted(true); }, 1200));
   };
 
   const handleClose = () => {
     hide();
-    setTimeout(() => { setSubmitted(false); setForm({ name: "", email: "", service: "", message: "" }); }, 300);
+    timersRef.current.push(setTimeout(() => { setSubmitted(false); setForm({ name: "", email: "", service: "", message: "" }); }, 300));
   };
 
   return (

@@ -108,16 +108,20 @@ function InlineAddressForm({
       className="overflow-hidden"
     >
       <div className="mt-3 rounded-2xl border border-[#2C3A48]/15 bg-gray-50 p-4 flex flex-col gap-3">
-        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">New Address</p>
+        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+          {!userId ? "Delivery address for this purchase" : "New Address"}
+        </p>
 
-        <div className="flex gap-2">
-          {["Home", "Work", "Other"].map((l) => (
-            <button key={l} type="button" onClick={() => set("label", l)}
-              className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${form.label === l ? "bg-[#2C3A48] text-white border-[#2C3A48]" : "border-gray-200 text-gray-500 hover:border-gray-300"}`}>
-              {l}
-            </button>
-          ))}
-        </div>
+        {!!userId && (
+          <div className="flex gap-2">
+            {["Home", "Work", "Other"].map((l) => (
+              <button key={l} type="button" onClick={() => set("label", l)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${form.label === l ? "bg-[#2C3A48] text-white border-[#2C3A48]" : "border-gray-200 text-gray-500 hover:border-gray-300"}`}>
+                {l}
+              </button>
+            ))}
+          </div>
+        )}
 
         <input placeholder="Full Name *" value={form.full_name} onChange={(e) => set("full_name", e.target.value)}
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
@@ -155,12 +159,13 @@ function InlineAddressForm({
 
 // ── Inline Add Card Form ────────────────────────────────────────────────────
 function InlineCardFormInner({
-  email, name, stripeCustomerId, onSaved, onCancel, hideCancel,
+  email, name, stripeCustomerId, isGuest, onSaved, onCancel, hideCancel,
 }: {
   email: string;
   name: string;
   stripeCustomerId: string | undefined;
-  onSaved: (customerId: string) => void;
+  isGuest?: boolean;
+  onSaved: (customerId: string, paymentMethodId: string) => void;
   onCancel: () => void;
   hideCancel?: boolean;
 }) {
@@ -184,12 +189,15 @@ function InlineCardFormInner({
     const { clientSecret, customerId, error: apiErr } = await res.json();
     if (apiErr) { setError(apiErr); setSaving(false); return; }
 
-    const { error: stripeErr } = await stripe.confirmCardSetup(clientSecret, {
+    const { setupIntent, error: stripeErr } = await stripe.confirmCardSetup(clientSecret, {
       payment_method: { card: elements.getElement(CardElement)! },
     });
     setSaving(false);
     if (stripeErr) { setError(stripeErr.message ?? "Failed to save card"); return; }
-    onSaved(customerId);
+    const pmId = typeof setupIntent?.payment_method === "string"
+      ? setupIntent.payment_method
+      : (setupIntent?.payment_method?.id ?? "");
+    onSaved(customerId, pmId);
   };
 
   return (
@@ -202,7 +210,9 @@ function InlineCardFormInner({
     >
       <div className="mt-3 rounded-2xl border border-[#635bff]/20 bg-[#635bff]/5 p-4 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">New Card</p>
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+            {isGuest ? "Card for this purchase" : "New Card"}
+          </p>
           <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
             <ShieldCheck className="w-3 h-3 text-[#635bff]" />
             <span>Secured by <span className="font-bold text-[#635bff]">Stripe</span></span>
@@ -246,7 +256,7 @@ function InlineCardFormInner({
   );
 }
 
-function InlineCardForm(props: Parameters<typeof InlineCardFormInner>[0]) {
+function InlineCardForm(props: Parameters<typeof InlineCardFormInner>[0] & { isGuest?: boolean }) {
   return (
     <Elements stripe={stripePromise}>
       <AnimatePresence>
@@ -485,65 +495,104 @@ export default function CheckoutPage() {
                   </h2>
                 </div>
 
-                {fetchingAddresses ? (
-                  <div className="flex flex-col gap-3">
-                    {[0, 1].map((i) => <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />)}
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    {addresses.map((addr) => (
-                      <button key={addr.id} onClick={() => setSelectedAddressId(addr.id)}
-                        className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${selectedAddressId === addr.id ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]" : "border-gray-200 hover:border-gray-300"}`}>
-                        <div className="flex items-start gap-3">
-                          <div className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${selectedAddressId === addr.id ? "border-[#2C3A48] bg-[#2C3A48]" : "border-gray-300"}`}>
-                            {selectedAddressId === addr.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                          </div>
+                {isGuest ? (
+                  /* ── Guest address: single-form flow ── */
+                  <>
+                    <AnimatePresence mode="wait">
+                      {showAddAddress ? (
+                        <InlineAddressForm
+                          key="form"
+                          userId={undefined}
+                          hideCancel
+                          onSaved={(addr) => {
+                            setAddresses([addr]);
+                            setSelectedAddressId(addr.id);
+                            setShowAddAddress(false);
+                          }}
+                          onCancel={() => {}}
+                        />
+                      ) : selectedAddress ? (
+                        <motion.div
+                          key="summary"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-[#2C3A48]/[0.04] border-2 border-[#2C3A48]"
+                        >
+                          <MapPin className="w-4 h-4 text-[#2C3A48] shrink-0 mt-0.5" />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <span className="text-xs font-bold text-[#2C3A48] uppercase tracking-wide">{addr.label}</span>
-                              {addr.is_default && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">Default</span>}
-                            </div>
-                            <p className="text-sm font-semibold text-gray-700">{addr.full_name}</p>
+                            <p className="text-sm font-semibold text-gray-700">{selectedAddress.full_name}</p>
                             <p className="text-xs text-gray-400 mt-0.5">
-                              {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} {addr.zip}
+                              {selectedAddress.line1}{selectedAddress.line2 ? `, ${selectedAddress.line2}` : ""},{" "}
+                              {selectedAddress.city}, {selectedAddress.state} {selectedAddress.zip}
                             </p>
                           </div>
-                        </div>
-                      </button>
-                    ))}
-
-                    {addresses.length === 0 && !showAddAddress && (
-                      <div className="flex flex-col items-center gap-2 py-6 text-center">
-                        <MapPin className="w-8 h-8 text-gray-200" strokeWidth={1.5} />
-                        <p className="text-sm text-gray-400">No saved addresses. Add one below to continue.</p>
+                          <button
+                            onClick={() => setShowAddAddress(true)}
+                            className="text-xs font-semibold text-[#E87B3A] hover:underline shrink-0"
+                          >
+                            Edit
+                          </button>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </>
+                ) : (
+                  /* ── Signed-in address: list + add flow ── */
+                  <>
+                    {fetchingAddresses ? (
+                      <div className="flex flex-col gap-3">
+                        {[0, 1].map((i) => <div key={i} className="h-16 rounded-2xl bg-gray-100 animate-pulse" />)}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        {addresses.map((addr) => (
+                          <button key={addr.id} onClick={() => setSelectedAddressId(addr.id)}
+                            className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${selectedAddressId === addr.id ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]" : "border-gray-200 hover:border-gray-300"}`}>
+                            <div className="flex items-start gap-3">
+                              <div className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${selectedAddressId === addr.id ? "border-[#2C3A48] bg-[#2C3A48]" : "border-gray-300"}`}>
+                                {selectedAddressId === addr.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="text-xs font-bold text-[#2C3A48] uppercase tracking-wide">{addr.label}</span>
+                                  {addr.is_default && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">Default</span>}
+                                </div>
+                                <p className="text-sm font-semibold text-gray-700">{addr.full_name}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">
+                                  {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} {addr.zip}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                        {addresses.length === 0 && !showAddAddress && (
+                          <div className="flex flex-col items-center gap-2 py-6 text-center">
+                            <MapPin className="w-8 h-8 text-gray-200" strokeWidth={1.5} />
+                            <p className="text-sm text-gray-400">No saved addresses. Add one below to continue.</p>
+                          </div>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
-
-                <AnimatePresence>
-                  {showAddAddress && (
-                    <InlineAddressForm
-                      userId={user?.id}
-                      hideCancel={isGuest}
-                      onSaved={(addr) => {
-                        setAddresses((prev) => {
-                          const filtered = prev.filter((a) => !a.id.startsWith("guest-"));
-                          return [...filtered, addr];
-                        });
-                        setSelectedAddressId(addr.id);
-                        setShowAddAddress(false);
-                      }}
-                      onCancel={() => setShowAddAddress(false)}
-                    />
-                  )}
-                </AnimatePresence>
-
-                {!showAddAddress && (
-                  <button onClick={() => setShowAddAddress(true)}
-                    className="mt-3 w-full py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-400 hover:border-[#2C3A48] hover:text-[#2C3A48] transition-colors flex items-center justify-center gap-2">
-                    <Plus className="w-4 h-4" /> Add New Address
-                  </button>
+                    <AnimatePresence>
+                      {showAddAddress && (
+                        <InlineAddressForm
+                          userId={user?.id}
+                          onSaved={(addr) => {
+                            setAddresses((prev) => [...prev, addr]);
+                            setSelectedAddressId(addr.id);
+                            setShowAddAddress(false);
+                          }}
+                          onCancel={() => setShowAddAddress(false)}
+                        />
+                      )}
+                    </AnimatePresence>
+                    {!showAddAddress && (
+                      <button onClick={() => setShowAddAddress(true)}
+                        className="mt-3 w-full py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-400 hover:border-[#2C3A48] hover:text-[#2C3A48] transition-colors flex items-center justify-center gap-2">
+                        <Plus className="w-4 h-4" /> Add New Address
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -562,70 +611,132 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {fetchingCards ? (
-                  <div className="flex flex-col gap-3">
-                    {[0, 1].map((i) => <div key={i} className="h-14 rounded-2xl bg-gray-100 animate-pulse" />)}
-                  </div>
+                {isGuest ? (
+                  /* ── Guest card: single-form flow ── */
+                  <>
+                    <AnimatePresence mode="wait">
+                      {showAddCard ? (
+                        <InlineCardForm
+                          key="form"
+                          email=""
+                          name=""
+                          stripeCustomerId={undefined}
+                          isGuest
+                          hideCancel
+                          onSaved={async (customerId) => {
+                            setShowAddCard(false);
+                            try {
+                              const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`);
+                              const { methods } = await res.json();
+                              const list = (methods ?? []) as SavedCard[];
+                              setCards(list);
+                              if (list.length > 0) setSelectedCardId(list[0].id);
+                            } catch {}
+                          }}
+                          onCancel={() => {}}
+                        />
+                      ) : selectedCardId && cards.length > 0 ? (() => {
+                        const pm = cards.find((c) => c.id === selectedCardId) ?? cards[0];
+                        return (
+                          <motion.div
+                            key="summary"
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-[#2C3A48]/[0.04] border-2 border-[#2C3A48]"
+                          >
+                            <div className={`w-10 h-6 rounded flex items-center justify-center text-white text-[9px] font-extrabold shrink-0 ${BRAND_COLOR[pm.card.brand] ?? "bg-gray-400"}`}>
+                              {(BRAND_LABEL[pm.card.brand] ?? "CARD").slice(0, 4).toUpperCase()}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-[#2C3A48]">
+                                {BRAND_LABEL[pm.card.brand] ?? "Card"} •••• {pm.card.last4}
+                              </p>
+                              <p className="text-xs text-gray-400">
+                                Expires {pm.card.exp_month.toString().padStart(2, "0")}/{pm.card.exp_year}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => { setCards([]); setSelectedCardId(null); setShowAddCard(true); }}
+                              className="text-xs font-semibold text-[#E87B3A] hover:underline shrink-0"
+                            >
+                              Change
+                            </button>
+                          </motion.div>
+                        );
+                      })() : null}
+                    </AnimatePresence>
+                  </>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    {cards.map((pm) => (
-                      <button key={pm.id} onClick={() => setSelectedCardId(pm.id)}
-                        className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${selectedCardId === pm.id ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]" : "border-gray-200 hover:border-gray-300"}`}>
-                        <div className="flex items-center gap-3">
-                          <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${selectedCardId === pm.id ? "border-[#2C3A48] bg-[#2C3A48]" : "border-gray-300"}`}>
-                            {selectedCardId === pm.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  /* ── Signed-in card: list + add flow ── */
+                  <>
+                    {fetchingCards ? (
+                      <div className="flex flex-col gap-3">
+                        {[0, 1].map((i) => <div key={i} className="h-14 rounded-2xl bg-gray-100 animate-pulse" />)}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3">
+                        {cards.map((pm) => (
+                          <button key={pm.id} onClick={() => setSelectedCardId(pm.id)}
+                            className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${selectedCardId === pm.id ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]" : "border-gray-200 hover:border-gray-300"}`}>
+                            <div className="flex items-center gap-3">
+                              <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${selectedCardId === pm.id ? "border-[#2C3A48] bg-[#2C3A48]" : "border-gray-300"}`}>
+                                {selectedCardId === pm.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                              </div>
+                              <div className={`w-10 h-6 rounded flex items-center justify-center text-white text-[9px] font-extrabold shrink-0 ${BRAND_COLOR[pm.card.brand] ?? "bg-gray-400"}`}>
+                                {(BRAND_LABEL[pm.card.brand] ?? "CARD").slice(0, 4).toUpperCase()}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-[#2C3A48]">
+                                  {BRAND_LABEL[pm.card.brand] ?? "Card"} •••• {pm.card.last4}
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                  Expires {pm.card.exp_month.toString().padStart(2, "0")}/{pm.card.exp_year}
+                                </p>
+                              </div>
+                            </div>
+                          </button>
+                        ))}
+                        {cards.length === 0 && !showAddCard && (
+                          <div className="flex flex-col items-center gap-2 py-6 text-center">
+                            <CreditCard className="w-8 h-8 text-gray-200" strokeWidth={1.5} />
+                            <p className="text-sm text-gray-400">No saved cards. Add one below to continue.</p>
                           </div>
-                          <div className={`w-10 h-6 rounded flex items-center justify-center text-white text-[9px] font-extrabold shrink-0 ${BRAND_COLOR[pm.card.brand] ?? "bg-gray-400"}`}>
-                            {(BRAND_LABEL[pm.card.brand] ?? "CARD").slice(0, 4).toUpperCase()}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#2C3A48]">
-                              {BRAND_LABEL[pm.card.brand] ?? "Card"} •••• {pm.card.last4}
-                            </p>
-                            <p className="text-xs text-gray-400">
-                              Expires {pm.card.exp_month.toString().padStart(2, "0")}/{pm.card.exp_year}
-                            </p>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-
-                    {cards.length === 0 && !showAddCard && (
-                      <div className="flex flex-col items-center gap-2 py-6 text-center">
-                        <CreditCard className="w-8 h-8 text-gray-200" strokeWidth={1.5} />
-                        <p className="text-sm text-gray-400">No saved cards. Add one below to continue.</p>
+                        )}
                       </div>
                     )}
-                  </div>
-                )}
-
-                <AnimatePresence>
-                  {showAddCard && (
-                    <InlineCardForm
-                      email={user?.email ?? ""}
-                      name={(user?.user_metadata?.full_name as string) ?? ""}
-                      stripeCustomerId={stripeCustomerId}
-                      hideCancel={isGuest}
-                      onSaved={async (customerId) => {
-                        if (user && !stripeCustomerId) {
-                          const { data } = await supabase.auth.updateUser({
-                            data: { stripe_customer_id: customerId },
-                          });
-                          if (data.user) setUser(data.user);
-                        }
-                        setShowAddCard(false);
-                        fetchCards();
-                      }}
-                      onCancel={() => setShowAddCard(false)}
-                    />
-                  )}
-                </AnimatePresence>
-
-                {!showAddCard && (
-                  <button onClick={() => setShowAddCard(true)}
-                    className="mt-3 w-full py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-400 hover:border-[#635bff] hover:text-[#635bff] transition-colors flex items-center justify-center gap-2">
-                    <Plus className="w-4 h-4" /> Add Payment Method
-                  </button>
+                    <AnimatePresence>
+                      {showAddCard && (
+                        <InlineCardForm
+                          email={user?.email ?? ""}
+                          name={(user?.user_metadata?.full_name as string) ?? ""}
+                          stripeCustomerId={stripeCustomerId}
+                          onSaved={async (customerId) => {
+                            if (!stripeCustomerId) {
+                              const { data } = await supabase.auth.updateUser({
+                                data: { stripe_customer_id: customerId },
+                              });
+                              if (data.user) setUser(data.user);
+                            }
+                            setShowAddCard(false);
+                            try {
+                              const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`);
+                              const { methods } = await res.json();
+                              const list = (methods ?? []) as SavedCard[];
+                              setCards(list);
+                              if (list.length > 0) setSelectedCardId(list[0].id);
+                            } catch {}
+                          }}
+                          onCancel={() => setShowAddCard(false)}
+                        />
+                      )}
+                    </AnimatePresence>
+                    {!showAddCard && (
+                      <button onClick={() => setShowAddCard(true)}
+                        className="mt-3 w-full py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-400 hover:border-[#635bff] hover:text-[#635bff] transition-colors flex items-center justify-center gap-2">
+                        <Plus className="w-4 h-4" /> Add Payment Method
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
 

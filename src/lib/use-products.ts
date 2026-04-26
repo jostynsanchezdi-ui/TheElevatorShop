@@ -11,19 +11,19 @@ interface UseProductsResult {
   loading: boolean;
 }
 
-let cache: MockProduct[] | null = null;
+const g = globalThis as typeof globalThis & { __productsCache?: MockProduct[] };
 
 export function useProducts(): UseProductsResult {
-  const [products, setProducts] = useState<MockProduct[]>(cache ?? MOCK_PRODUCTS);
+  const [products, setProducts] = useState<MockProduct[]>(g.__productsCache ?? MOCK_PRODUCTS);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (cache) { setProducts(cache); return; }
+    if (g.__productsCache) { setProducts(g.__productsCache); return; }
     fetch("/api/zoho/products")
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
-          cache = data;
+          g.__productsCache = data;
           setProducts(data);
         }
       })

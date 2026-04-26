@@ -236,12 +236,16 @@ export default function Navbar({
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setAccountOpen(false)} />
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
                       transition={{ duration: 0.15, ease: "easeOut" }}
-                      className="absolute right-0 top-full mt-3 w-64 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                      style={{ transformOrigin: "top right" }}
+                      className="absolute right-0 top-full mt-2 w-64 z-50"
                     >
+                      {/* Caret pointing up to icon */}
+                      <div className="absolute -top-2 right-2.5 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45 rounded-tl-sm shadow-[-2px_-2px_4px_rgba(0,0,0,0.04)]" />
+                      <div className="bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden">
                       {/* Account Information */}
                       <button
                         onClick={() => { setAccountOpen(false); setAccountInfoOpen(true); }}
@@ -308,6 +312,7 @@ export default function Navbar({
                           Sign Out
                         </button>
                       </div>
+                      </div>
                     </motion.div>
                   </>
                 )}
@@ -329,31 +334,36 @@ export default function Navbar({
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setAccountOpen(false)} />
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -6 }}
+                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -6 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
                       transition={{ duration: 0.15, ease: "easeOut" }}
-                      className="absolute right-0 top-full mt-3 w-52 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                      style={{ transformOrigin: "top right" }}
+                      className="absolute right-0 top-full mt-2 w-52 z-50"
                     >
-                      <div className="px-4 pt-4 pb-2">
-                        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">My Account</p>
-                        <button
-                          onClick={() => { setAccountOpen(false); openAuth("login"); }}
-                          className="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-[#2C3A48] hover:bg-gray-50 transition-colors mb-2"
-                        >
-                          Sign In
-                        </button>
-                        <button
-                          onClick={() => { setAccountOpen(false); openAuth("register"); }}
-                          className="w-full py-2.5 rounded-xl bg-[#E87B3A] text-white text-sm font-bold hover:bg-[#d06b2a] transition-colors"
-                        >
-                          Sign Up
-                        </button>
-                      </div>
-                      <div className="px-4 py-3 border-t border-gray-100">
-                        <p className="text-[11px] text-gray-400 leading-relaxed">
-                          Sign in to save addresses, view orders, and manage your wishlist.
-                        </p>
+                      {/* Caret pointing up to icon */}
+                      <div className="absolute -top-2 right-2.5 w-4 h-4 bg-white border-l border-t border-gray-100 rotate-45 rounded-tl-sm shadow-[-2px_-2px_4px_rgba(0,0,0,0.04)]" />
+                      <div className="bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden">
+                        <div className="px-4 pt-4 pb-2">
+                          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">My Account</p>
+                          <button
+                            onClick={() => { setAccountOpen(false); openAuth("login"); }}
+                            className="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-[#2C3A48] hover:bg-gray-50 transition-colors mb-2"
+                          >
+                            Sign In
+                          </button>
+                          <button
+                            onClick={() => { setAccountOpen(false); openAuth("register"); }}
+                            className="w-full py-2.5 rounded-xl bg-[#E87B3A] text-white text-sm font-bold hover:bg-[#d06b2a] transition-colors"
+                          >
+                            Sign Up
+                          </button>
+                        </div>
+                        <div className="px-4 py-3 border-t border-gray-100">
+                          <p className="text-[11px] text-gray-400 leading-relaxed">
+                            Sign in to save addresses, view orders, and manage your wishlist.
+                          </p>
+                        </div>
                       </div>
                     </motion.div>
                   </>

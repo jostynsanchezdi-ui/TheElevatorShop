@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { X, Share2 } from "lucide-react";
 
-const ABOUT_LINKS = [
-  { href: "/blog", label: "Blog" },
-  { href: "/about", label: "Meet The Team" },
+const COMPANY_LINKS = [
+  { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact Us" },
 ];
 
 const SUPPORT_LINKS = [
-  { href: "/contact", label: "Contact Us" },
   { href: "/shipping", label: "Shipping & Returns" },
-  { href: "/faq", label: "FAQ" },
+  { href: "/cart", label: "Cart" },
+  { href: "/wishlist", label: "Wishlist" },
 ];
 
 const SOCIAL = [
@@ -25,9 +24,9 @@ export default function Footer() {
         {/* Links grid */}
         <div className="flex flex-col sm:flex-row gap-10 sm:gap-20 mb-10">
           <div>
-            <p className="text-sm font-bold text-gray-900 mb-4">About</p>
+            <p className="text-sm font-bold text-gray-900 mb-4">Company</p>
             <ul className="space-y-2.5">
-              {ABOUT_LINKS.map((link) => (
+              {COMPANY_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
@@ -77,18 +76,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="border-t border-gray-100 pt-6 flex items-center justify-center">
           <p className="text-xs text-gray-400">
             © {new Date().getFullYear()} TheElevatorShop. All Rights Reserved.
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="/privacy" className="text-xs text-gray-400 hover:text-gray-700 transition-colors">
-              Privacy Policy
-            </Link>
-          </div>
         </div>
       </div>
     </footer>

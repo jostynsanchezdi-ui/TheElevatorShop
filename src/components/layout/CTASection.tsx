@@ -16,7 +16,7 @@ export default function CTASection() {
   return (
     <section className="py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-gray-900 rounded-2xl px-8 py-10 sm:px-12 flex flex-col md:flex-row gap-10 items-center">
+        <div className="rounded-2xl px-8 py-10 sm:px-12 flex flex-col md:flex-row gap-10 items-center" style={{ background: "linear-gradient(135deg, #E87B3A 0%, #2C3A48 60%, #1a2535 100%)" }}>
           {/* Left copy */}
           <div className="flex-1">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-6">

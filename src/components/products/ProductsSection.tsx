@@ -36,19 +36,25 @@ export default function ProductsSection() {
     if (!search.trim()) return [];
     const q = search.toLowerCase();
     return products
-      .filter((p) => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q))
+      .filter((p) => p.name.toLowerCase().includes(q))
       .slice(0, MAX_SUGGESTIONS);
   }, [search, products]);
 
   const filtered = useMemo(() => {
     if (category === "all") return products.filter((p) => p.price > 2000);
-    return products.filter(
+
+    const matches = products.filter(
       (p) =>
         p.category === category ||
         p.subcategory === category ||
         p.category.toLowerCase() === category.toLowerCase() ||
         p.subcategory?.toLowerCase() === category.toLowerCase()
     );
+
+    return [
+      ...matches.filter((p) => p.stock > 0).sort((a, b) => b.price - a.price),
+      ...matches.filter((p) => p.stock <= 0),
+    ];
   }, [category, products]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -91,7 +97,7 @@ export default function ProductsSection() {
               value={search}
               onChange={handleSearch}
               onFocus={() => search.trim() && setDropdownOpen(true)}
-              placeholder="Search by name or SKU…"
+              placeholder="Search by name…"
               className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition"
             />
 
@@ -136,7 +142,7 @@ export default function ProductsSection() {
                           {product.name}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          {product.sku} · {product.category}
+                          {product.category}
                         </p>
                       </div>
 
