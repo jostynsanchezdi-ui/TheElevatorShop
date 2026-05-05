@@ -65,7 +65,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
 
   const handleQty = (e: React.MouseEvent, delta: number) => {
     e.stopPropagation();
-    setQuantity((q) => Math.max(1, q + delta));
+    setQuantity((q) => Math.min(product.stock, Math.max(1, q + delta)));
   };
 
   return (
@@ -206,7 +206,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
           >
             <button onClick={(e) => handleQty(e, -1)} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium">−</button>
             <span className="w-5 text-center text-xs font-semibold text-[#2C3A48]">{quantity}</span>
-            <button onClick={(e) => handleQty(e, 1)} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium">+</button>
+            <button onClick={(e) => handleQty(e, 1)} disabled={quantity >= product.stock} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500">+</button>
           </div>
 
           {/* Add to Cart */}

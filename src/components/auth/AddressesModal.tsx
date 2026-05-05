@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Star, Trash2, Plus, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-store";
+import Autocomplete from "react-google-autocomplete";
 
 interface AddressesModalProps {
   open: boolean;
@@ -50,6 +51,13 @@ export default function AddressesModal({ open, onClose }: AddressesModalProps) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [resetKey, setResetKey] = useState(0);
+  const [stateBounds, setStateBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
+  const [streetKey, setStreetKey] = useState(0);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getComp = (place: any, type: string) =>
+    place.address_components?.find((c: { types: string[]; long_name: string; short_name: string }) => c.types.includes(type));
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [defaultingId, setDefaultingId] = useState<string | null>(null);
@@ -326,17 +334,82 @@ export default function AddressesModal({ open, onClose }: AddressesModalProps) {
                           </div>
 
                           {field("full_name", "Full Name", "Jane Smith", "text", true)}
-                          {field("line1", "Address Line 1", "123 Main St", "text", true)}
-                          {field("line2", "Address Line 2 (optional)", "Apt 4B")}
 
-                          <div className="grid grid-cols-2 gap-3">
-                            {field("city", "City", "New York", "text", true)}
-                            {field("state", "State", "NY", "text", true)}
+                          {/* Street — fills all fields on selection */}
+                          <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-semibold text-gray-500">
+                              Address Line 1<span className="text-rose-400 ml-0.5">*</span>
+                            </label>
+                            <Autocomplete
+                              key={`street-${streetKey}`}
+                              apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+                              onPlaceSelected={(place) => {
+                                const streetNumber = getComp(place, "street_number")?.long_name ?? "";
+                                const route = getComp(place, "route")?.long_name ?? "";
+                                const city = getComp(place, "locality")?.long_name ?? getComp(place, "sublocality_level_1")?.long_name ?? getComp(place, "administrative_area_level_2")?.long_name ?? "";
+                                const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+                                const zip = getComp(place, "postal_code")?.long_name ?? "";
+                                const line1 = `${streetNumber} ${route}`.trim();
+                                setForm((f) => ({ ...f, line1, city, state, zip }));
+                                setResetKey((k) => k + 1);
+                                setStreetKey((k) => k + 1);
+                              }}
+                              options={{ types: ["address"], componentRestrictions: { country: "us" } }}
+                              placeholder="123 Main St"
+                              defaultValue={form.line1}
+                              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition"
+                            />
                           </div>
 
+                          {field("line2", "Address Line 2 (optional)", "Apt 4B")}
+
+                          {/* City + State */}
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-xs font-semibold text-gray-500">City<span className="text-rose-400 ml-0.5">*</span></label>
+                              <Autocomplete
+                                key={`city-${resetKey}`}
+                                apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+                                defaultValue={form.city}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, city: e.target.value }))}
+                                onPlaceSelected={(place) => {
+                                  const city = getComp(place, "locality")?.long_name ?? getComp(place, "sublocality_level_1")?.long_name ?? getComp(place, "administrative_area_level_2")?.long_name ?? "";
+                                  const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+                                  setForm((f) => ({ ...f, city, ...(state && { state }) }));
+                                  setResetKey((k) => k + 1);
+                                }}
+                                options={{ types: ["(cities)"], componentRestrictions: { country: "us" } }}
+                                placeholder="New York"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                              <label className="text-xs font-semibold text-gray-500">State<span className="text-rose-400 ml-0.5">*</span></label>
+                              <Autocomplete
+                                key={`state-${resetKey}`}
+                                apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+                                defaultValue={form.state}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, state: e.target.value }))}
+                                onPlaceSelected={(place) => {
+                                  const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+                                  if (state) setForm((f) => ({ ...f, state }));
+                                  const vp = place.geometry?.viewport;
+                                  if (vp) {
+                                    setStateBounds({ north: vp.getNorthEast().lat(), south: vp.getSouthWest().lat(), east: vp.getNorthEast().lng(), west: vp.getSouthWest().lng() });
+                                    setStreetKey((k) => k + 1);
+                                  }
+                                }}
+                                options={{ types: ["(regions)"], componentRestrictions: { country: "us" } }}
+                                placeholder="NY"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition"
+                              />
+                            </div>
+                          </div>
+
+                          {/* ZIP + Country */}
                           <div className="grid grid-cols-2 gap-3">
                             {field("zip", "ZIP", "10001", "text", true)}
-                            {field("country", "Country", "United States", "text", true)}
+                            {field("country", "Country", "United States")}
                           </div>
 
                           {saveError && (

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Heart, Menu, User, MapPin, CreditCard, Package, HelpCircle, LogOut, ChevronRight } from "lucide-react";
+import { ShoppingCart, Heart, Menu, User, MapPin, Package, HelpCircle, LogOut, ChevronRight } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist-store";
 import { useCart } from "@/lib/cart-store";
 import { useAuthModal } from "@/lib/auth-modal-store";
@@ -11,7 +11,6 @@ import { useContactModal } from "@/lib/contact-modal-store";
 import { useAuth } from "@/lib/auth-store";
 import AccountModal from "@/components/auth/AccountModal";
 import AddressesModal from "@/components/auth/AddressesModal";
-import PaymentMethodsModal from "@/components/auth/PaymentMethodsModal";
 import PurchaseHistoryModal from "@/components/auth/PurchaseHistoryModal";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -56,7 +55,6 @@ interface NavbarProps {
 
 const defaultMenu: MenuItem[] = [
   { title: "Home", url: "/" },
-  { title: "Shop", url: "/products" },
   { title: "About", url: "/about" },
 ];
 
@@ -75,7 +73,6 @@ export default function Navbar({
   const [accountOpen, setAccountOpen] = React.useState(false);
   const [accountInfoOpen, setAccountInfoOpen] = React.useState(false);
   const [addressesOpen, setAddressesOpen] = React.useState(false);
-  const [paymentOpen, setPaymentOpen] = React.useState(false);
   const [historyOpen, setHistoryOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -273,9 +270,8 @@ export default function Navbar({
                       {/* Menu items */}
                       <div className="py-2">
                         {[
-                          { icon: <MapPin className="w-4 h-4" />,     label: "Addresses",        onClick: () => { setAccountOpen(false); setAddressesOpen(true); } },
-                          { icon: <CreditCard className="w-4 h-4" />, label: "Payment Methods",  onClick: () => { setAccountOpen(false); setPaymentOpen(true); } },
-                          { icon: <Package className="w-4 h-4" />,    label: "Purchase History", onClick: () => { setAccountOpen(false); setHistoryOpen(true); } },
+                          { icon: <MapPin className="w-4 h-4" />,  label: "Addresses",        onClick: () => { setAccountOpen(false); setAddressesOpen(true); } },
+                          { icon: <Package className="w-4 h-4" />, label: "Purchase History", onClick: () => { setAccountOpen(false); setHistoryOpen(true); } },
                         ].map(({ icon, label, onClick }) => (
                           <button key={label} onClick={onClick}
                             className="w-full flex items-center justify-between gap-3 px-4 py-2.5 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors group"
@@ -441,7 +437,6 @@ export default function Navbar({
     </header>
     <AccountModal open={accountInfoOpen} onClose={() => setAccountInfoOpen(false)} />
     <AddressesModal open={addressesOpen} onClose={() => setAddressesOpen(false)} />
-    <PaymentMethodsModal open={paymentOpen} onClose={() => setPaymentOpen(false)} />
     <PurchaseHistoryModal open={historyOpen} onClose={() => setHistoryOpen(false)} />
     </>
   );

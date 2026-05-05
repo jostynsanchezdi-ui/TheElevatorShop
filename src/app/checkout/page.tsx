@@ -6,11 +6,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft, MapPin, CreditCard, Package, ShieldCheck,
-  Lock, Plus, Loader2, History,
+  ArrowLeft, MapPin, Package, ShieldCheck,
+  Lock, Plus, Loader2, FileText, Download, ExternalLink, Building2,
 } from "lucide-react";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { stripePromise } from "@/lib/stripe-client";
+import Autocomplete from "react-google-autocomplete";
 import { useAuth } from "@/lib/auth-store";
 import { useCart } from "@/lib/cart-store";
 import { supabase } from "@/lib/supabase";
@@ -28,21 +27,6 @@ interface Address {
   zip: string;
   is_default: boolean;
 }
-
-interface SavedCard {
-  id: string;
-  card: { brand: string; last4: string; exp_month: number; exp_year: number };
-}
-
-const BRAND_LABEL: Record<string, string> = {
-  visa: "Visa", mastercard: "Mastercard", amex: "Amex",
-  discover: "Discover", jcb: "JCB", unionpay: "UnionPay", unknown: "Card",
-};
-
-const BRAND_COLOR: Record<string, string> = {
-  visa: "bg-blue-600", mastercard: "bg-red-500",
-  amex: "bg-blue-400", discover: "bg-orange-400",
-};
 
 function formatPrice(cents: number) {
   return new Intl.NumberFormat("en-US", {
@@ -69,9 +53,19 @@ function InlineAddressForm({
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [resetKey, setResetKey] = useState(0);
+  const [stateBounds, setStateBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
+  const [streetKey, setStreetKey] = useState(0);
+
+  // stateBounds is used only to satisfy the linter; it's a future-use field
+  void stateBounds;
 
   const set = (key: string, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getComp = (place: any, type: string) =>
+    place.address_components?.find((c: { types: string[]; long_name: string; short_name: string }) => c.types.includes(type));
 
   const handleSave = async () => {
     if (!form.full_name || !form.line1 || !form.city || !form.state || !form.zip) {
@@ -125,18 +119,71 @@ function InlineAddressForm({
 
         <input placeholder="Full Name *" value={form.full_name} onChange={(e) => set("full_name", e.target.value)}
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
-        <input placeholder="Street Address *" value={form.line1} onChange={(e) => set("line1", e.target.value)}
-          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
+
+        {/* Street — fills city, state, zip on selection */}
+        <Autocomplete
+          key={`street-${streetKey}`}
+          apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+          onPlaceSelected={(place) => {
+            const streetNumber = getComp(place, "street_number")?.long_name ?? "";
+            const route = getComp(place, "route")?.long_name ?? "";
+            const city = getComp(place, "locality")?.long_name ?? getComp(place, "sublocality_level_1")?.long_name ?? getComp(place, "administrative_area_level_2")?.long_name ?? "";
+            const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+            const zip = getComp(place, "postal_code")?.long_name ?? "";
+            const line1 = `${streetNumber} ${route}`.trim();
+            setForm((f) => ({ ...f, line1, city, state, zip }));
+            setResetKey((k) => k + 1);
+            setStreetKey((k) => k + 1);
+          }}
+          options={{ types: ["address"], componentRestrictions: { country: "us" } }}
+          placeholder="Street Address *"
+          defaultValue={form.line1}
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+        />
+
         <input placeholder="Apt, Suite (optional)" value={form.line2} onChange={(e) => set("line2", e.target.value)}
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
-        <div className="grid grid-cols-3 gap-2">
-          <input placeholder="City *" value={form.city} onChange={(e) => set("city", e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
-          <input placeholder="State *" value={form.state} onChange={(e) => set("state", e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
-          <input placeholder="ZIP *" value={form.zip} onChange={(e) => set("zip", e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
+
+        {/* City + State */}
+        <div className="grid grid-cols-2 gap-2">
+          <Autocomplete
+            key={`city-${resetKey}`}
+            apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+            defaultValue={form.city}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("city", e.target.value)}
+            onPlaceSelected={(place) => {
+              const city = getComp(place, "locality")?.long_name ?? getComp(place, "sublocality_level_1")?.long_name ?? getComp(place, "administrative_area_level_2")?.long_name ?? "";
+              const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+              setForm((f) => ({ ...f, city, ...(state && { state }) }));
+              setResetKey((k) => k + 1);
+            }}
+            options={{ types: ["(cities)"], componentRestrictions: { country: "us" } }}
+            placeholder="City *"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+          />
+          <Autocomplete
+            key={`state-${resetKey}`}
+            apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+            defaultValue={form.state}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("state", e.target.value)}
+            onPlaceSelected={(place) => {
+              const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+              if (state) set("state", state);
+              const vp = place.geometry?.viewport;
+              if (vp) {
+                setStateBounds({ north: vp.getNorthEast().lat(), south: vp.getSouthWest().lat(), east: vp.getNorthEast().lng(), west: vp.getSouthWest().lng() });
+                setStreetKey((k) => k + 1);
+              }
+            }}
+            options={{ types: ["(regions)"], componentRestrictions: { country: "us" } }}
+            placeholder="State *"
+            className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+          />
         </div>
+
+        {/* ZIP */}
+        <input placeholder="ZIP *" value={form.zip} onChange={(e) => set("zip", e.target.value)}
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
 
         {error && <p className="text-xs text-rose-500">{error}</p>}
 
@@ -157,128 +204,21 @@ function InlineAddressForm({
   );
 }
 
-// ── Inline Add Card Form ────────────────────────────────────────────────────
-function InlineCardFormInner({
-  email, name, stripeCustomerId, isGuest, onSaved, onCancel, hideCancel,
-}: {
-  email: string;
-  name: string;
-  stripeCustomerId: string | undefined;
-  isGuest?: boolean;
-  onSaved: (customerId: string, paymentMethodId: string) => void;
-  onCancel: () => void;
-  hideCancel?: boolean;
-}) {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [cardReady, setCardReady] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!stripe || !elements) return;
-    setError("");
-    setSaving(true);
-
-    const res = await fetch("/api/stripe/setup-intent", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, name, stripeCustomerId }),
-    });
-    const { clientSecret, customerId, error: apiErr } = await res.json();
-    if (apiErr) { setError(apiErr); setSaving(false); return; }
-
-    const { setupIntent, error: stripeErr } = await stripe.confirmCardSetup(clientSecret, {
-      payment_method: { card: elements.getElement(CardElement)! },
-    });
-    setSaving(false);
-    if (stripeErr) { setError(stripeErr.message ?? "Failed to save card"); return; }
-    const pmId = typeof setupIntent?.payment_method === "string"
-      ? setupIntent.payment_method
-      : (setupIntent?.payment_method?.id ?? "");
-    onSaved(customerId, pmId);
-  };
-
-  return (
-    <motion.form onSubmit={handleSubmit}
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: "auto" }}
-      exit={{ opacity: 0, height: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 28 }}
-      className="overflow-hidden"
-    >
-      <div className="mt-3 rounded-2xl border border-[#635bff]/20 bg-[#635bff]/5 p-4 flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
-            {isGuest ? "Card for this purchase" : "New Card"}
-          </p>
-          <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-            <ShieldCheck className="w-3 h-3 text-[#635bff]" />
-            <span>Secured by <span className="font-bold text-[#635bff]">Stripe</span></span>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-gray-500 flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5" /> Card Details
-          </label>
-          <div className="px-4 py-3 rounded-xl border border-gray-200 bg-white focus-within:ring-2 focus-within:ring-[#635bff]/30 focus-within:border-[#635bff] transition">
-            <CardElement onReady={() => setCardReady(true)}
-              options={{ style: { base: { fontSize: "14px", color: "#2C3A48", fontFamily: "inherit", "::placeholder": { color: "#9ca3af" } }, invalid: { color: "#ef4444" } }, hidePostalCode: true }} />
-          </div>
-        </div>
-
-        {error && <p className="text-xs text-rose-500">{error}</p>}
-
-        <div className="flex gap-2">
-          <motion.button type="submit" disabled={saving || !cardReady} whileTap={{ scale: 0.97 }}
-            className="flex-1 py-2.5 rounded-xl bg-[#2C3A48] text-white text-sm font-bold hover:bg-[#1e2a35] transition-colors disabled:opacity-60 flex items-center justify-center gap-2">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Lock className="w-3.5 h-3.5" /> Use This Card</>}
-          </motion.button>
-          {!hideCancel && (
-            <button type="button" onClick={onCancel}
-              className="px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500 hover:bg-gray-50 transition-colors">
-              Cancel
-            </button>
-          )}
-        </div>
-
-        <div className="flex items-center justify-center gap-3 pt-1 border-t border-gray-100">
-          <div className="flex items-center gap-1 text-[10px] text-gray-400"><Lock className="w-3 h-3" /> SSL Encrypted</div>
-          <div className="w-px h-3 bg-gray-200" />
-          <div className="flex items-center gap-1 text-[10px] text-gray-400"><ShieldCheck className="w-3 h-3 text-[#635bff]" /> PCI Compliant</div>
-          <div className="w-px h-3 bg-gray-200" />
-          <div className="text-[10px] text-gray-400"><span className="font-bold text-[#635bff]">Stripe</span> Verified</div>
-        </div>
-      </div>
-    </motion.form>
-  );
-}
-
-function InlineCardForm(props: Parameters<typeof InlineCardFormInner>[0] & { isGuest?: boolean }) {
-  return (
-    <Elements stripe={stripePromise}>
-      <AnimatePresence>
-        <InlineCardFormInner {...props} />
-      </AnimatePresence>
-    </Elements>
-  );
-}
-
-// ── Order Confirmation Overlay ──────────────────────────────────────────────
-function OrderConfirmation({ onClear }: { onClear: () => void }) {
+// ── PO Confirmation Overlay ─────────────────────────────────────────────────
+function OrderConfirmation({ onClear, orderId }: { onClear: () => void; orderId: string | null }) {
   const router = useRouter();
-
-  const handleGoToHistory = () => {
-    onClear();
-    window.dispatchEvent(new CustomEvent("open-purchase-history"));
-    router.push("/");
-  };
 
   const handleContinue = () => {
     onClear();
     router.push("/");
+  };
+
+  const handleView = () => {
+    if (orderId) window.open(`/po/${orderId}`, "_blank");
+  };
+
+  const handleDownload = () => {
+    if (orderId) window.open(`/po/${orderId}?print=1`, "_blank");
   };
 
   return (
@@ -291,20 +231,20 @@ function OrderConfirmation({ onClear }: { onClear: () => void }) {
         initial={{ scale: 0.88, opacity: 0, y: 24 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 26, delay: 0.08 }}
-        className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full flex flex-col items-center text-center gap-6"
+        className="bg-white rounded-3xl shadow-2xl p-10 max-w-lg w-full flex flex-col items-center text-center gap-6"
       >
         {/* Animated checkmark */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 380, damping: 22, delay: 0.2 }}
-          className="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center"
+          className="w-20 h-20 rounded-full bg-[#E87B3A]/10 flex items-center justify-center"
         >
-          <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
-            <motion.circle cx="32" cy="32" r="28" fill="rgba(40,167,69,0.15)"
+          <svg width="56" height="56" viewBox="0 0 64 64" fill="none">
+            <motion.circle cx="32" cy="32" r="28" fill="rgba(232,123,58,0.15)"
               initial={{ scale: 0 }} animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.3 }} />
-            <motion.circle cx="32" cy="32" r="22" fill="rgba(40,167,69,0.9)"
+            <motion.circle cx="32" cy="32" r="22" fill="rgba(232,123,58,0.9)"
               initial={{ scale: 0 }} animate={{ scale: 1 }}
               transition={{ type: "spring", stiffness: 320, damping: 20, delay: 0.38 }} />
             <motion.path d="M21 32L28.5 39.5L43 25" stroke="white" strokeWidth="3"
@@ -314,37 +254,53 @@ function OrderConfirmation({ onClear }: { onClear: () => void }) {
           </svg>
         </motion.div>
 
+        {/* Thank you message */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }}>
-          <h2 className="text-2xl font-extrabold text-[#2C3A48] mb-2">Order Confirmed!</h2>
+          <h2 className="text-2xl font-extrabold text-[#2C3A48] mb-2">Thank You for Your Order!</h2>
           <p className="text-sm text-gray-500 leading-relaxed">
-            Thank you for your purchase. A confirmation email with your order details and tracking information will be sent to your inbox shortly.
+            Our team will be in touch shortly with an email containing the payment link and instructions to complete your order.
           </p>
         </motion.div>
 
+        {/* PO Download */}
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-          className="w-full p-4 rounded-2xl bg-[#2C3A48]/5 border border-[#2C3A48]/10 flex items-center gap-3 text-left"
+          className="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-4 text-left"
         >
-          <div className="w-9 h-9 rounded-full bg-[#2C3A48]/10 flex items-center justify-center shrink-0">
-            <History className="w-4 h-4 text-[#2C3A48]" />
+          <div className="w-10 h-12 rounded-lg bg-[#2C3A48] flex items-center justify-center shrink-0">
+            <FileText className="w-5 h-5 text-white" />
           </div>
-          <p className="text-xs text-gray-500 leading-snug">
-            Track your order anytime in{" "}
-            <span className="font-semibold text-[#2C3A48]">Purchase History</span>{" "}
-            under your profile once it&apos;s been processed.
-          </p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-[#2C3A48]">Purchase Order</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {orderId ? "Your PO is ready to view or download" : "Sign in to save and access your PO"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleView}
+              disabled={!orderId}
+              className="px-3 py-1.5 text-xs font-semibold text-[#2C3A48] border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ExternalLink className="w-3 h-3" /> View
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={!orderId}
+              className="px-3 py-1.5 text-xs font-semibold bg-[#2C3A48] text-white rounded-lg hover:bg-[#1e2a35] transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Download className="w-3 h-3" /> Download
+            </button>
+          </div>
         </motion.div>
 
+        {/* Actions */}
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.82 }}
-          className="flex flex-col gap-2.5 w-full"
+          className="w-full"
         >
-          <button onClick={handleGoToHistory}
-            className="w-full py-3 rounded-xl bg-[#2C3A48] text-white text-sm font-bold hover:bg-[#1e2a35] transition-colors flex items-center justify-center gap-2">
-            <History className="w-4 h-4" /> Go to Purchase History
-          </button>
           <button onClick={handleContinue}
-            className="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+            className="w-full py-3 rounded-xl bg-[#2C3A48] text-white text-sm font-bold hover:bg-[#1e2a35] transition-colors">
             Continue Shopping
           </button>
         </motion.div>
@@ -355,24 +311,24 @@ function OrderConfirmation({ onClear }: { onClear: () => void }) {
 
 // ── Main Checkout Page ──────────────────────────────────────────────────────
 export default function CheckoutPage() {
-  const { user, loading, setUser } = useAuth();
+  const { user, loading } = useAuth();
   const { items, clear } = useCart();
 
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [cards, setCards] = useState<SavedCard[]>([]);
   const [fetchingAddresses, setFetchingAddresses] = useState(true);
-  const [fetchingCards, setFetchingCards] = useState(true);
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
-
   const [showAddAddress, setShowAddAddress] = useState(false);
-  const [showAddCard, setShowAddCard] = useState(false);
 
+  const [billTo, setBillTo] = useState({
+    full_name: "", company: "", email: "", phone: "",
+    line1: "", line2: "", city: "", state: "", zip: "",
+  });
+  const [billToError, setBillToError] = useState("");
   const [placing, setPlacing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
-  const stripeCustomerId = user?.user_metadata?.stripe_customer_id as string | undefined;
   const isGuest = !loading && !user;
 
   const fetchAddresses = useCallback(async () => {
@@ -392,47 +348,41 @@ export default function CheckoutPage() {
     setFetchingAddresses(false);
   }, [user]);
 
-  const fetchCards = useCallback(async () => {
-    if (!user || !stripeCustomerId) { setFetchingCards(false); return; }
-    setFetchingCards(true);
-    try {
-      const res = await fetch(`/api/stripe/payment-methods?customerId=${stripeCustomerId}`);
-      const { methods } = await res.json();
-      const list = (methods ?? []) as SavedCard[];
-      setCards(list);
-      if (list.length > 0) setSelectedCardId(list[0].id);
-    } catch {}
-    setFetchingCards(false);
-  }, [stripeCustomerId]);
-
   useEffect(() => {
     fetchAddresses();
-    fetchCards();
-  }, [fetchAddresses, fetchCards]);
+  }, [fetchAddresses]);
 
-  // Once auth resolves and there's no user, open the inline forms automatically
+  // Once auth resolves and there's no user, open the inline form automatically
   useEffect(() => {
     if (!loading && !user) {
       setShowAddAddress(true);
-      setShowAddCard(true);
     }
   }, [loading, user]);
+
+  // Pre-fill email from auth
+  useEffect(() => {
+    if (user?.email) {
+      setBillTo((b) => ({ ...b, email: b.email || user.email! }));
+    }
+  }, [user]);
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
   const shippingCost = shippingCostForState(selectedAddress?.state);
   const subtotal = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
   const total = subtotal + (shippingCost ?? 0);
-  // For guests the inline forms handle entry — canPlace requires an address was saved/selected and a card saved/selected
-  const canPlace = !!selectedAddressId && !!selectedCardId && items.length > 0;
+  const billToComplete = !!(billTo.full_name && billTo.email && billTo.line1 && billTo.city && billTo.state && billTo.zip);
+  const canPlace = !!selectedAddressId && items.length > 0 && billToComplete;
 
   const handlePlaceOrder = async () => {
     if (!canPlace) return;
+    if (!billToComplete) { setBillToError("Please complete all required billing fields."); return; }
+    setBillToError("");
     setPlacing(true);
 
     const addr = addresses.find((a) => a.id === selectedAddressId)!;
 
     if (user) {
-      await supabase.from("user_orders").insert({
+      const { data: orderData } = await supabase.from("user_orders").insert({
         user_id: user.id,
         status: "confirmed",
         items: items.map((i) => ({
@@ -453,8 +403,20 @@ export default function CheckoutPage() {
           city: addr.city,
           state: addr.state,
           zip: addr.zip,
+          billing: {
+            full_name: billTo.full_name,
+            company: billTo.company || null,
+            email: billTo.email,
+            phone: billTo.phone || null,
+            line1: billTo.line1,
+            line2: billTo.line2 || null,
+            city: billTo.city,
+            state: billTo.state,
+            zip: billTo.zip,
+          },
         },
-      });
+      }).select("id").single();
+      setOrderId(orderData?.id ?? null);
     }
 
     setPlacing(false);
@@ -486,10 +448,85 @@ export default function CheckoutPage() {
             {/* ── Left column ── */}
             <div className="flex-1 min-w-0 flex flex-col gap-6">
 
-              {/* Step 1: Shipping Address */}
+              {/* Step 1: Billing Address */}
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
+                  <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-gray-400" /> Billing Address
+                  </h2>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      placeholder="Full Name *"
+                      value={billTo.full_name}
+                      onChange={(e) => setBillTo((b) => ({ ...b, full_name: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                    <input
+                      placeholder="Company (optional)"
+                      value={billTo.company}
+                      onChange={(e) => setBillTo((b) => ({ ...b, company: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      placeholder="Email *"
+                      type="email"
+                      value={billTo.email}
+                      onChange={(e) => setBillTo((b) => ({ ...b, email: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                    <input
+                      placeholder="Phone (optional)"
+                      type="tel"
+                      value={billTo.phone}
+                      onChange={(e) => setBillTo((b) => ({ ...b, phone: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                  </div>
+                  <input
+                    placeholder="Street Address *"
+                    value={billTo.line1}
+                    onChange={(e) => setBillTo((b) => ({ ...b, line1: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                  />
+                  <input
+                    placeholder="Apt, Suite (optional)"
+                    value={billTo.line2}
+                    onChange={(e) => setBillTo((b) => ({ ...b, line2: e.target.value }))}
+                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                  />
+                  <div className="grid grid-cols-3 gap-3">
+                    <input
+                      placeholder="City *"
+                      value={billTo.city}
+                      onChange={(e) => setBillTo((b) => ({ ...b, city: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                    <input
+                      placeholder="State *"
+                      value={billTo.state}
+                      onChange={(e) => setBillTo((b) => ({ ...b, state: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                    <input
+                      placeholder="ZIP *"
+                      value={billTo.zip}
+                      onChange={(e) => setBillTo((b) => ({ ...b, zip: e.target.value }))}
+                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                    />
+                  </div>
+                  {billToError && <p className="text-xs text-rose-500">{billToError}</p>}
+                </div>
+              </div>
+
+              {/* Step 2: Shipping Address */}
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
                   <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-gray-400" /> Shipping Address
                   </h2>
@@ -516,9 +553,9 @@ export default function CheckoutPage() {
                           key="summary"
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="flex items-start gap-3 px-4 py-3.5 rounded-2xl bg-[#2C3A48]/[0.04] border-2 border-[#2C3A48]"
+                          className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-[#2C3A48]/[0.04] border-2 border-[#2C3A48]"
                         >
-                          <MapPin className="w-4 h-4 text-[#2C3A48] shrink-0 mt-0.5" />
+                          <MapPin className="w-4 h-4 text-[#2C3A48] shrink-0" />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-gray-700">{selectedAddress.full_name}</p>
                             <p className="text-xs text-gray-400 mt-0.5">
@@ -596,152 +633,8 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              {/* Step 2: Payment Method */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
-                    <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-gray-400" /> Payment Method
-                    </h2>
-                  </div>
-                  <div className="flex items-center gap-1.5 bg-[#635bff]/5 rounded-full px-3 py-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#635bff]" />
-                    <span className="text-[11px] font-semibold text-[#635bff]">Stripe Secured</span>
-                  </div>
-                </div>
-
-                {isGuest ? (
-                  /* ── Guest card: single-form flow ── */
-                  <>
-                    <AnimatePresence mode="wait">
-                      {showAddCard ? (
-                        <InlineCardForm
-                          key="form"
-                          email=""
-                          name=""
-                          stripeCustomerId={undefined}
-                          isGuest
-                          hideCancel
-                          onSaved={async (customerId) => {
-                            setShowAddCard(false);
-                            try {
-                              const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`);
-                              const { methods } = await res.json();
-                              const list = (methods ?? []) as SavedCard[];
-                              setCards(list);
-                              if (list.length > 0) setSelectedCardId(list[0].id);
-                            } catch {}
-                          }}
-                          onCancel={() => {}}
-                        />
-                      ) : selectedCardId && cards.length > 0 ? (() => {
-                        const pm = cards.find((c) => c.id === selectedCardId) ?? cards[0];
-                        return (
-                          <motion.div
-                            key="summary"
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-[#2C3A48]/[0.04] border-2 border-[#2C3A48]"
-                          >
-                            <div className={`w-10 h-6 rounded flex items-center justify-center text-white text-[9px] font-extrabold shrink-0 ${BRAND_COLOR[pm.card.brand] ?? "bg-gray-400"}`}>
-                              {(BRAND_LABEL[pm.card.brand] ?? "CARD").slice(0, 4).toUpperCase()}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-[#2C3A48]">
-                                {BRAND_LABEL[pm.card.brand] ?? "Card"} •••• {pm.card.last4}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                Expires {pm.card.exp_month.toString().padStart(2, "0")}/{pm.card.exp_year}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => { setCards([]); setSelectedCardId(null); setShowAddCard(true); }}
-                              className="text-xs font-semibold text-[#E87B3A] hover:underline shrink-0"
-                            >
-                              Change
-                            </button>
-                          </motion.div>
-                        );
-                      })() : null}
-                    </AnimatePresence>
-                  </>
-                ) : (
-                  /* ── Signed-in card: list + add flow ── */
-                  <>
-                    {fetchingCards ? (
-                      <div className="flex flex-col gap-3">
-                        {[0, 1].map((i) => <div key={i} className="h-14 rounded-2xl bg-gray-100 animate-pulse" />)}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-3">
-                        {cards.map((pm) => (
-                          <button key={pm.id} onClick={() => setSelectedCardId(pm.id)}
-                            className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${selectedCardId === pm.id ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]" : "border-gray-200 hover:border-gray-300"}`}>
-                            <div className="flex items-center gap-3">
-                              <div className={`w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center ${selectedCardId === pm.id ? "border-[#2C3A48] bg-[#2C3A48]" : "border-gray-300"}`}>
-                                {selectedCardId === pm.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                              </div>
-                              <div className={`w-10 h-6 rounded flex items-center justify-center text-white text-[9px] font-extrabold shrink-0 ${BRAND_COLOR[pm.card.brand] ?? "bg-gray-400"}`}>
-                                {(BRAND_LABEL[pm.card.brand] ?? "CARD").slice(0, 4).toUpperCase()}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-[#2C3A48]">
-                                  {BRAND_LABEL[pm.card.brand] ?? "Card"} •••• {pm.card.last4}
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                  Expires {pm.card.exp_month.toString().padStart(2, "0")}/{pm.card.exp_year}
-                                </p>
-                              </div>
-                            </div>
-                          </button>
-                        ))}
-                        {cards.length === 0 && !showAddCard && (
-                          <div className="flex flex-col items-center gap-2 py-6 text-center">
-                            <CreditCard className="w-8 h-8 text-gray-200" strokeWidth={1.5} />
-                            <p className="text-sm text-gray-400">No saved cards. Add one below to continue.</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <AnimatePresence>
-                      {showAddCard && (
-                        <InlineCardForm
-                          email={user?.email ?? ""}
-                          name={(user?.user_metadata?.full_name as string) ?? ""}
-                          stripeCustomerId={stripeCustomerId}
-                          onSaved={async (customerId) => {
-                            if (!stripeCustomerId) {
-                              const { data } = await supabase.auth.updateUser({
-                                data: { stripe_customer_id: customerId },
-                              });
-                              if (data.user) setUser(data.user);
-                            }
-                            setShowAddCard(false);
-                            try {
-                              const res = await fetch(`/api/stripe/payment-methods?customerId=${customerId}`);
-                              const { methods } = await res.json();
-                              const list = (methods ?? []) as SavedCard[];
-                              setCards(list);
-                              if (list.length > 0) setSelectedCardId(list[0].id);
-                            } catch {}
-                          }}
-                          onCancel={() => setShowAddCard(false)}
-                        />
-                      )}
-                    </AnimatePresence>
-                    {!showAddCard && (
-                      <button onClick={() => setShowAddCard(true)}
-                        className="mt-3 w-full py-2.5 rounded-xl border-2 border-dashed border-gray-200 text-sm font-semibold text-gray-400 hover:border-[#635bff] hover:text-[#635bff] transition-colors flex items-center justify-center gap-2">
-                        <Plus className="w-4 h-4" /> Add Payment Method
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-
               {/* Step 3: Shipping Info */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              <div className="relative z-10 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
                   <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
@@ -772,6 +665,7 @@ export default function CheckoutPage() {
                       </span>
                     </div>
                   )}
+
                 </div>
               </div>
             </div>
@@ -831,17 +725,15 @@ export default function CheckoutPage() {
                   {placing ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</>
                   ) : (
-                    <><ShieldCheck className="w-4 h-4" /> Complete Order</>
+                    <><ShieldCheck className="w-4 h-4" /> Get Purchase Order</>
                   )}
                 </motion.button>
 
                 {!canPlace && (
                   <p className="mt-2 text-[10px] text-center text-gray-400">
-                    {!selectedAddressId && !selectedCardId
-                      ? "Select an address and a payment method to continue"
-                      : !selectedAddressId
+                    {!selectedAddressId
                       ? "Select a shipping address to continue"
-                      : "Select a payment method to continue"}
+                      : "Add items to your cart to continue"}
                   </p>
                 )}
 
@@ -849,12 +741,6 @@ export default function CheckoutPage() {
                 <div className="mt-4 flex items-center justify-center gap-3 pt-3 border-t border-gray-100">
                   <div className="flex items-center gap-1 text-[10px] text-gray-400">
                     <Lock className="w-3 h-3" /> SSL Encrypted
-                  </div>
-                  <div className="w-px h-3 bg-gray-200" />
-                  <div className="flex items-center gap-1.5 text-[10px] text-gray-400">
-                    <ShieldCheck className="w-3 h-3 text-[#635bff]" />
-                    <span className="font-bold text-[#635bff]">Stripe</span>
-                    <span>Secured</span>
                   </div>
                 </div>
               </div>
@@ -866,7 +752,7 @@ export default function CheckoutPage() {
       <Footer />
 
       <AnimatePresence>
-        {confirmed && <OrderConfirmation onClear={clear} />}
+        {confirmed && <OrderConfirmation onClear={clear} orderId={orderId} />}
       </AnimatePresence>
     </>
   );

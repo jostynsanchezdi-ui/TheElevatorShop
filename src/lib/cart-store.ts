@@ -24,14 +24,23 @@ export const useCart = create<CartState>()((set, get) => ({
   add: (product) =>
     set((s) => {
       const existing = s.items.find((i) => i.product.id === product.id);
-      if (existing) return { items: s.items.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i) };
+      if (existing) {
+        if (existing.quantity >= product.stock) return s;
+        return { items: s.items.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i) };
+      }
       return { items: [...s.items, { product, quantity: 1 }] };
     }),
   remove: (id) => set((s) => ({ items: s.items.filter((i) => i.product.id !== id) })),
   clear: () => set({ items: [] }),
   load: (items) => set({ items }),
   increment: (id) =>
-    set((s) => ({ items: s.items.map((i) => i.product.id === id ? { ...i, quantity: i.quantity + 1 } : i) })),
+    set((s) => ({
+      items: s.items.map((i) =>
+        i.product.id === id && i.quantity < i.product.stock
+          ? { ...i, quantity: i.quantity + 1 }
+          : i
+      ),
+    })),
   decrement: (id) =>
     set((s) => ({
       items: s.items

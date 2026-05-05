@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, ArrowRight, CheckCircle } from "lucide-react";
+import { Mail, ArrowRight, CheckCircle } from "lucide-react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -63,18 +63,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 font-medium">E-mail</p>
-                  <p className="text-sm font-semibold text-[#2C3A48]">support@theelevatorshop.com</p>
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-[#2C3A48] flex items-center justify-center shrink-0">
-                  <Phone className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-400 font-medium">Phone number</p>
-                  <p className="text-sm font-semibold text-[#2C3A48]">+1 (800) 555 - 3825</p>
+                  <p className="text-sm font-semibold text-[#2C3A48]">sales@theelevatorshop.net</p>
                 </div>
               </div>
             </div>
@@ -141,7 +130,7 @@ export default function ContactPage() {
 
                   {/* Service */}
                   <div className="flex flex-col gap-1.5">
-                    <label htmlFor="service" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Service</label>
+                    <label htmlFor="service" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Subject</label>
                     <select
                       id="service"
                       name="service"
@@ -188,7 +177,7 @@ export default function ContactPage() {
                         <ArrowRight className="w-4 h-4" />
                       )}
                     </span>
-                    {loading ? "Sending…" : "Get a Solution"}
+                    {loading ? "Sending…" : "Send"}
                   </motion.button>
 
                 </form>

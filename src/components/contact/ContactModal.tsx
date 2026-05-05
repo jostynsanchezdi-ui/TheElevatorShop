@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Mail, Phone, ArrowRight, CheckCircle } from "lucide-react";
+import { X, Mail, ArrowRight, CheckCircle } from "lucide-react";
 import { useContactModal } from "@/lib/contact-modal-store";
 
 const SERVICES = [
@@ -110,16 +110,7 @@ export default function ContactModal() {
                       </div>
                       <div>
                         <p className="text-white/50 text-[10px]">E-mail</p>
-                        <p className="text-white text-xs font-semibold">support@theelevatorshop.com</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                        <Phone className="w-4 h-4 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-white/50 text-[10px]">Phone</p>
-                        <p className="text-white text-xs font-semibold">+1 (800) 555 - 3825</p>
+                        <p className="text-white text-xs font-semibold">sales@theelevatorshop.net</p>
                       </div>
                     </div>
                   </div>
@@ -175,7 +166,7 @@ export default function ContactModal() {
                         </div>
 
                         <div className="flex flex-col gap-1.5">
-                          <label className="text-xs font-semibold text-gray-500">Service</label>
+                          <label className="text-xs font-semibold text-gray-500">Subject</label>
                           <select name="service" value={form.service} onChange={handleChange}
                             className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition appearance-none">
                             {SERVICES.map((s) => (
@@ -201,7 +192,7 @@ export default function ContactModal() {
                               <ArrowRight className="w-4 h-4" />
                             )}
                           </span>
-                          {loading ? "Sending…" : "Get a Solution"}
+                          {loading ? "Sending…" : "Send"}
                         </motion.button>
                       </form>
                     </motion.div>

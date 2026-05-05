@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Package, ShoppingBag, MapPin, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { X, Package, ShoppingBag, ChevronDown, ChevronUp, Loader2, FileText, Download, ExternalLink } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-store";
 
@@ -27,6 +26,7 @@ interface ShippingAddress {
 
 interface Order {
   id: string;
+  po_number: number;
   status: string;
   items: OrderItem[];
   subtotal: number;
@@ -78,7 +78,7 @@ function OrderCard({ order }: { order: Order }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-xs font-mono font-bold text-[#2C3A48] truncate">
-              #{order.id.slice(0, 8).toUpperCase()}
+              #{`PO-${String(order.po_number).padStart(5, "0")}`}
             </p>
             <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${status.classes}`}>
               {status.label}
@@ -107,55 +107,30 @@ function OrderCard({ order }: { order: Order }) {
             transition={{ duration: 0.22, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="border-t border-gray-100 px-4 py-4 flex flex-col gap-4">
+            <div className="border-t border-gray-100 px-4 py-4">
 
-              {/* Items */}
-              <div className="flex flex-col gap-3">
-                {order.items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                      {item.image ? (
-                        <Image src={item.image} alt={item.name} fill className="object-cover" unoptimized />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-4 h-4 text-gray-300" strokeWidth={1} />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-[#2C3A48] truncate">{item.name}</p>
-                      <p className="text-[10px] text-gray-400">Qty: {item.quantity}</p>
-                    </div>
-                    <p className="text-xs font-bold text-[#2C3A48] shrink-0">
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Totals */}
-              <div className="bg-gray-50 rounded-xl px-4 py-3 flex flex-col gap-1.5 text-xs">
-                <div className="flex justify-between text-gray-500">
-                  <span>Subtotal</span>
-                  <span className="font-semibold text-[#2C3A48]">{formatPrice(order.subtotal)}</span>
+              {/* PO actions */}
+              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <div className="w-9 h-10 rounded-lg bg-[#2C3A48] flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4 text-white" />
                 </div>
-                <div className="flex justify-between text-gray-500">
-                  <span>Shipping</span>
-                  <span className="font-semibold text-[#2C3A48]">{formatPrice(order.shipping_cost)}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-[#2C3A48]">Purchase Order</p>
+                  <p className="text-[10px] text-gray-400">#{`PO-${String(order.po_number).padStart(5, "0")}`}</p>
                 </div>
-                <div className="flex justify-between border-t border-gray-200 pt-1.5 text-sm font-bold text-[#2C3A48]">
-                  <span>Total</span>
-                  <span>{formatPrice(order.total)}</span>
-                </div>
-              </div>
-
-              {/* Shipping address */}
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-3.5 h-3.5 text-gray-400 shrink-0 mt-0.5" />
-                <div className="text-[11px] text-gray-500 leading-relaxed">
-                  <p className="font-semibold text-[#2C3A48]">{order.shipping_address.full_name}</p>
-                  <p>{order.shipping_address.line1}{order.shipping_address.line2 ? `, ${order.shipping_address.line2}` : ""}</p>
-                  <p>{order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.zip}</p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => window.open(`/po/${order.id}`, "_blank")}
+                    className="px-2.5 py-1.5 text-[11px] font-semibold text-[#2C3A48] border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1"
+                  >
+                    <ExternalLink className="w-3 h-3" /> View
+                  </button>
+                  <button
+                    onClick={() => window.open(`/po/${order.id}?print=1`, "_blank")}
+                    className="px-2.5 py-1.5 text-[11px] font-semibold bg-[#2C3A48] text-white rounded-lg hover:bg-[#1e2a35] transition-colors flex items-center gap-1"
+                  >
+                    <Download className="w-3 h-3" /> Download
+                  </button>
                 </div>
               </div>
 

@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Trash2, Plus, Minus, ShieldCheck, Tag, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Minus, AlertCircle, Tag, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
@@ -141,7 +141,8 @@ export default function CartPage() {
                             </span>
                             <button
                               onClick={() => increment(item.product.id)}
-                              className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-[#E87B3A] hover:text-[#E87B3A] transition-colors"
+                              disabled={item.quantity >= item.product.stock}
+                              className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-[#E87B3A] hover:text-[#E87B3A] transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-gray-500"
                             >
                               <Plus className="w-3 h-3" />
                             </button>
@@ -219,20 +220,28 @@ export default function CartPage() {
                     </div>
                   </div>
 
-                  {/* Warranty note */}
-                  <div className="flex items-start gap-2.5 mt-5 p-3 bg-gray-50 rounded-xl">
-                    <ShieldCheck className="w-4 h-4 text-[#E87B3A] shrink-0 mt-0.5" />
+                  {/* MOQ note */}
+                  <div className={`flex items-start gap-2.5 mt-5 p-3 rounded-xl ${subtotal < 100_000 ? "bg-amber-50" : "bg-gray-50"}`}>
+                    <AlertCircle className={`w-4 h-4 shrink-0 mt-0.5 ${subtotal < 100_000 ? "text-amber-500" : "text-[#E87B3A]"}`} />
                     <p className="text-xs text-gray-500 leading-relaxed">
-                      90-day limited warranty against manufacturer&apos;s defects on all parts.{" "}
-                      <span className="text-[#E87B3A] font-medium cursor-pointer hover:underline">Details</span>
+                      <span className="font-semibold text-[#2C3A48]">Minimum order: $1,000.00.</span>{" "}
+                      {subtotal < 100_000
+                        ? `Add ${formatPrice(100_000 - subtotal)} more to proceed to checkout.`
+                        : "Your order meets the minimum requirement."}
                     </p>
                   </div>
 
                   {/* Checkout — pushed to bottom */}
                   <div className="mt-auto">
-                    <Link href="/checkout" className="block w-full py-3 bg-[#2C3A48] text-white text-sm font-bold rounded-xl hover:bg-[#1e2a35] transition-colors text-center">
-                      Checkout Now
-                    </Link>
+                    {subtotal >= 100_000 ? (
+                      <Link href="/checkout" className="block w-full py-3 bg-[#2C3A48] text-white text-sm font-bold rounded-xl hover:bg-[#1e2a35] transition-colors text-center">
+                        Continue
+                      </Link>
+                    ) : (
+                      <button disabled className="w-full py-3 bg-gray-200 text-gray-400 text-sm font-bold rounded-xl cursor-not-allowed text-center">
+                        Continue
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

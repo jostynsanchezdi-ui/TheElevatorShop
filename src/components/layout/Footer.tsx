@@ -1,20 +1,14 @@
 import Link from "next/link";
-import { X, Share2 } from "lucide-react";
+import { Share2, Instagram } from "lucide-react";
 
 const COMPANY_LINKS = [
   { href: "/about", label: "About Us" },
   { href: "/contact", label: "Contact Us" },
 ];
 
-const SUPPORT_LINKS = [
-  { href: "/shipping", label: "Shipping & Returns" },
-  { href: "/cart", label: "Cart" },
-  { href: "/wishlist", label: "Wishlist" },
-];
-
 const SOCIAL = [
-  { href: "https://x.com", icon: X, label: "X" },
   { href: "https://linkedin.com", icon: Share2, label: "LinkedIn" },
+  { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
 ];
 
 export default function Footer() {
@@ -27,22 +21,6 @@ export default function Footer() {
             <p className="text-sm font-bold text-gray-900 mb-4">Company</p>
             <ul className="space-y-2.5">
               {COMPANY_LINKS.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-gray-500 hover:text-gray-900 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <p className="text-sm font-bold text-gray-900 mb-4">Support</p>
-            <ul className="space-y-2.5">
-              {SUPPORT_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     href={link.href}
