@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Package, ShoppingBag, ChevronDown, ChevronUp, Loader2, FileText, Download, ExternalLink } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -63,13 +63,25 @@ function formatDate(iso: string) {
 function OrderCard({ order }: { order: Order }) {
   const [expanded, setExpanded] = useState(false);
   const status = STATUS_STYLES[order.status] ?? STATUS_STYLES.confirmed;
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = () => {
+    setExpanded((v) => {
+      if (!v) {
+        setTimeout(() => {
+          cardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }, 10);
+      }
+      return !v;
+    });
+  };
 
   return (
-    <div className="rounded-2xl border border-gray-100 overflow-hidden">
+    <div ref={cardRef} className="rounded-2xl border border-gray-100 bg-white">
       {/* Header row */}
       <button
-        onClick={() => setExpanded((v) => !v)}
-        className="w-full flex items-center gap-3 px-4 py-4 hover:bg-gray-50 transition-colors text-left"
+        onClick={handleToggle}
+        className="w-full flex items-center gap-3 px-4 py-4 hover:bg-gray-50 transition-colors text-left rounded-2xl"
       >
         <div className="w-10 h-10 rounded-xl bg-[#2C3A48]/8 flex items-center justify-center shrink-0">
           <Package className="w-5 h-5 text-[#2C3A48]" strokeWidth={1.5} />
@@ -101,16 +113,21 @@ function OrderCard({ order }: { order: Order }) {
       <AnimatePresence initial={false}>
         {expanded && (
           <motion.div
+            key="content"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: "easeInOut" }}
-            className="overflow-hidden"
+            style={{ overflow: "hidden" }}
           >
             <div className="border-t border-gray-100 px-4 py-4">
-
-              {/* PO actions */}
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <motion.div
+                initial={{ y: -6, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -6, opacity: 0 }}
+                transition={{ duration: 0.18, ease: "easeOut", delay: 0.06 }}
+                className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100"
+              >
                 <div className="w-9 h-10 rounded-lg bg-[#2C3A48] flex items-center justify-center shrink-0">
                   <FileText className="w-4 h-4 text-white" />
                 </div>
@@ -132,8 +149,7 @@ function OrderCard({ order }: { order: Order }) {
                     <Download className="w-3 h-3" /> Download
                   </button>
                 </div>
-              </div>
-
+              </motion.div>
             </div>
           </motion.div>
         )}
@@ -194,7 +210,7 @@ export default function PurchaseHistoryModal({ open, onClose }: PurchaseHistoryM
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
             <div
-              className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto max-h-[90vh] flex flex-col"
+              className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden pointer-events-auto h-[80vh] flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
@@ -221,7 +237,7 @@ export default function PurchaseHistoryModal({ open, onClose }: PurchaseHistoryM
               </div>
 
               {/* Body */}
-              <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-3">
+              <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 flex flex-col gap-3">
                 {loading ? (
                   <div className="flex items-center justify-center py-16">
                     <Loader2 className="w-6 h-6 animate-spin text-gray-300" />

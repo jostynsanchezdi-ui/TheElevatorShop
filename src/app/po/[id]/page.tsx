@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Loader2, Printer, Download } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 interface OrderItem {
   id: string;
@@ -82,15 +81,13 @@ export default function POPage() {
 
   useEffect(() => {
     async function load() {
-      const { data, error } = await supabase
-        .from("user_orders")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error || !data) {
-        setNotFound(true);
-      } else {
+      try {
+        const res = await fetch(`/api/po/${id}`);
+        if (!res.ok) { setNotFound(true); setLoading(false); return; }
+        const data = await res.json();
         setOrder(data as Order);
+      } catch {
+        setNotFound(true);
       }
       setLoading(false);
     }

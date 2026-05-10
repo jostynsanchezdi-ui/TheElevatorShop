@@ -39,6 +39,13 @@ function shippingCostForState(state: string | undefined): number | null {
   return state.trim().toUpperCase() === "NY" ? 2500 : 5000;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getComp(place: any, type: string) {
+  return place.address_components?.find(
+    (c: { types: string[]; long_name: string; short_name: string }) => c.types.includes(type)
+  );
+}
+
 // ── Inline Add Address Form ─────────────────────────────────────────────────
 function InlineAddressForm({
   userId, onSaved, onCancel, hideCancel,
@@ -62,10 +69,6 @@ function InlineAddressForm({
 
   const set = (key: string, value: string) =>
     setForm((f) => ({ ...f, [key]: value }));
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getComp = (place: any, type: string) =>
-    place.address_components?.find((c: { types: string[]; long_name: string; short_name: string }) => c.types.includes(type));
 
   const handleSave = async () => {
     if (!form.full_name || !form.line1 || !form.city || !form.state || !form.zip) {
@@ -124,6 +127,7 @@ function InlineAddressForm({
         <Autocomplete
           key={`street-${streetKey}`}
           apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => set("line1", e.target.value)}
           onPlaceSelected={(place) => {
             const streetNumber = getComp(place, "street_number")?.long_name ?? "";
             const route = getComp(place, "route")?.long_name ?? "";
@@ -272,9 +276,7 @@ function OrderConfirmation({ onClear, orderId }: { onClear: () => void; orderId:
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-[#2C3A48]">Purchase Order</p>
-            <p className="text-xs text-gray-400 mt-0.5">
-              {orderId ? "Your PO is ready to view or download" : "Sign in to save and access your PO"}
-            </p>
+            <p className="text-xs text-gray-400 mt-0.5">Your PO is ready to view or download</p>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <button
@@ -324,6 +326,9 @@ export default function CheckoutPage() {
     full_name: "", company: "", email: "", phone: "",
     line1: "", line2: "", city: "", state: "", zip: "",
   });
+  const [billStreetKey, setBillStreetKey] = useState(0);
+  const [billResetKey, setBillResetKey] = useState(0);
+  const [billConfirmed, setBillConfirmed] = useState(false);
   const [billToError, setBillToError] = useState("");
   const [placing, setPlacing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
@@ -371,7 +376,13 @@ export default function CheckoutPage() {
   const subtotal = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
   const total = subtotal + (shippingCost ?? 0);
   const billToComplete = !!(billTo.full_name && billTo.email && billTo.line1 && billTo.city && billTo.state && billTo.zip);
-  const canPlace = !!selectedAddressId && items.length > 0 && billToComplete;
+  const canPlace = !!selectedAddressId && items.length > 0 && billConfirmed;
+
+  const handleConfirmBilling = () => {
+    if (!billToComplete) { setBillToError("Please fill in all required fields."); return; }
+    setBillToError("");
+    setBillConfirmed(true);
+  };
 
   const handlePlaceOrder = async () => {
     if (!canPlace) return;
@@ -381,9 +392,11 @@ export default function CheckoutPage() {
 
     const addr = addresses.find((a) => a.id === selectedAddressId)!;
 
-    if (user) {
-      const { data: orderData } = await supabase.from("user_orders").insert({
-        user_id: user.id,
+    const res = await fetch("/api/po", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: user?.id ?? null,
         status: "confirmed",
         items: items.map((i) => ({
           id: i.product.id,
@@ -415,9 +428,10 @@ export default function CheckoutPage() {
             zip: billTo.zip,
           },
         },
-      }).select("id").single();
-      setOrderId(orderData?.id ?? null);
-    }
+      }),
+    });
+    const orderData = res.ok ? await res.json() : null;
+    setOrderId(orderData?.id ?? null);
 
     setPlacing(false);
     setConfirmed(true);
@@ -456,71 +470,142 @@ export default function CheckoutPage() {
                     <Building2 className="w-4 h-4 text-gray-400" /> Billing Address
                   </h2>
                 </div>
-                <div className="flex flex-col gap-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      placeholder="Full Name *"
-                      value={billTo.full_name}
-                      onChange={(e) => setBillTo((b) => ({ ...b, full_name: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                    <input
-                      placeholder="Company (optional)"
-                      value={billTo.company}
-                      onChange={(e) => setBillTo((b) => ({ ...b, company: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <input
-                      placeholder="Email *"
-                      type="email"
-                      value={billTo.email}
-                      onChange={(e) => setBillTo((b) => ({ ...b, email: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                    <input
-                      placeholder="Phone (optional)"
-                      type="tel"
-                      value={billTo.phone}
-                      onChange={(e) => setBillTo((b) => ({ ...b, phone: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                  </div>
-                  <input
-                    placeholder="Street Address *"
-                    value={billTo.line1}
-                    onChange={(e) => setBillTo((b) => ({ ...b, line1: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                  />
-                  <input
-                    placeholder="Apt, Suite (optional)"
-                    value={billTo.line2}
-                    onChange={(e) => setBillTo((b) => ({ ...b, line2: e.target.value }))}
-                    className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                  />
-                  <div className="grid grid-cols-3 gap-3">
-                    <input
-                      placeholder="City *"
-                      value={billTo.city}
-                      onChange={(e) => setBillTo((b) => ({ ...b, city: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                    <input
-                      placeholder="State *"
-                      value={billTo.state}
-                      onChange={(e) => setBillTo((b) => ({ ...b, state: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                    <input
-                      placeholder="ZIP *"
-                      value={billTo.zip}
-                      onChange={(e) => setBillTo((b) => ({ ...b, zip: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
-                    />
-                  </div>
-                  {billToError && <p className="text-xs text-rose-500">{billToError}</p>}
-                </div>
+
+                <AnimatePresence mode="wait">
+                  {billConfirmed ? (
+                    <motion.div
+                      key="bill-summary"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-[#2C3A48]/[0.04] border-2 border-[#2C3A48]"
+                    >
+                      <Building2 className="w-4 h-4 text-[#2C3A48] shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-700">{billTo.full_name}{billTo.company ? ` · ${billTo.company}` : ""}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {billTo.line1}{billTo.line2 ? `, ${billTo.line2}` : ""}, {billTo.city}, {billTo.state} {billTo.zip}
+                        </p>
+                        <p className="text-xs text-gray-400">{billTo.email}</p>
+                      </div>
+                      <button
+                        onClick={() => setBillConfirmed(false)}
+                        className="text-xs font-semibold text-[#E87B3A] hover:underline shrink-0"
+                      >
+                        Edit
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="bill-form"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="flex flex-col gap-3"
+                    >
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          placeholder="Full Name *"
+                          value={billTo.full_name}
+                          onChange={(e) => setBillTo((b) => ({ ...b, full_name: e.target.value }))}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                        <input
+                          placeholder="Company (optional)"
+                          value={billTo.company}
+                          onChange={(e) => setBillTo((b) => ({ ...b, company: e.target.value }))}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <input
+                          placeholder="Email *"
+                          type="email"
+                          value={billTo.email}
+                          onChange={(e) => setBillTo((b) => ({ ...b, email: e.target.value }))}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                        <input
+                          placeholder="Phone (optional)"
+                          type="tel"
+                          value={billTo.phone}
+                          onChange={(e) => setBillTo((b) => ({ ...b, phone: e.target.value }))}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                      </div>
+                      <Autocomplete
+                        key={`bill-street-${billStreetKey}`}
+                        apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillTo((b) => ({ ...b, line1: e.target.value }))}
+                        onPlaceSelected={(place) => {
+                          const streetNumber = getComp(place, "street_number")?.long_name ?? "";
+                          const route = getComp(place, "route")?.long_name ?? "";
+                          const city = getComp(place, "locality")?.long_name ?? getComp(place, "sublocality_level_1")?.long_name ?? getComp(place, "administrative_area_level_2")?.long_name ?? "";
+                          const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+                          const zip = getComp(place, "postal_code")?.long_name ?? "";
+                          setBillTo((b) => ({ ...b, line1: `${streetNumber} ${route}`.trim(), city, state, zip }));
+                          setBillResetKey((k) => k + 1);
+                          setBillStreetKey((k) => k + 1);
+                        }}
+                        options={{ types: ["address"], componentRestrictions: { country: "us" } }}
+                        placeholder="Street Address *"
+                        defaultValue={billTo.line1}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                      />
+                      <input
+                        placeholder="Apt, Suite (optional)"
+                        value={billTo.line2}
+                        onChange={(e) => setBillTo((b) => ({ ...b, line2: e.target.value }))}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                      />
+                      <div className="grid grid-cols-3 gap-3">
+                        <Autocomplete
+                          key={`bill-city-${billResetKey}`}
+                          apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+                          defaultValue={billTo.city}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillTo((b) => ({ ...b, city: e.target.value }))}
+                          onPlaceSelected={(place) => {
+                            const city = getComp(place, "locality")?.long_name ?? getComp(place, "sublocality_level_1")?.long_name ?? getComp(place, "administrative_area_level_2")?.long_name ?? "";
+                            const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+                            setBillTo((b) => ({ ...b, city, ...(state && { state }) }));
+                            setBillResetKey((k) => k + 1);
+                          }}
+                          options={{ types: ["(cities)"], componentRestrictions: { country: "us" } }}
+                          placeholder="City *"
+                          className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                        <Autocomplete
+                          key={`bill-state-${billResetKey}`}
+                          apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY}
+                          defaultValue={billTo.state}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBillTo((b) => ({ ...b, state: e.target.value }))}
+                          onPlaceSelected={(place) => {
+                            const state = getComp(place, "administrative_area_level_1")?.short_name ?? "";
+                            if (state) setBillTo((b) => ({ ...b, state }));
+                          }}
+                          options={{ types: ["(regions)"], componentRestrictions: { country: "us" } }}
+                          placeholder="State *"
+                          className="px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                        <input
+                          placeholder="ZIP *"
+                          value={billTo.zip}
+                          onChange={(e) => setBillTo((b) => ({ ...b, zip: e.target.value }))}
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition"
+                        />
+                      </div>
+                      {billToError && <p className="text-xs text-rose-500">{billToError}</p>}
+                      <button
+                        onClick={handleConfirmBilling}
+                        className="flex-1 py-2.5 rounded-xl bg-[#2C3A48] text-white text-sm font-bold hover:bg-[#1e2a35] transition-colors flex items-center justify-center gap-2"
+                      >
+                        Use this Billing Address
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Step 2: Shipping Address */}
