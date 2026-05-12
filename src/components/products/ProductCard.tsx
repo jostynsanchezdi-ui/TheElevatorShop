@@ -187,12 +187,10 @@ export default function ProductCard({ product, className, onClick }: ProductCard
 
         {/* Stock + Price row */}
         <div className="flex items-center justify-between gap-2">
-          {product.stock > 10 ? (
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-50 text-green-700">10+ in stock</span>
-          ) : product.stock > 0 ? (
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700">Only {product.stock} left</span>
-          ) : (
+          {product.stock <= 0 ? (
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600">Out of stock</span>
+          ) : (
+            <span />
           )}
           <span className="text-sm font-bold text-gray-900">{formatPrice(product.price)}</span>
         </div>

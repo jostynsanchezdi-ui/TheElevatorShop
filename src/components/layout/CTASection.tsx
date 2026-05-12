@@ -5,12 +5,27 @@ import { useState } from "react";
 export default function CTASection() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setSubmitted(true);
-    setEmail("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("Failed to send");
+      setSubmitted(true);
+      setEmail("");
+    } catch (err) {
+      console.error(err);
+      alert("Sorry, something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -39,9 +54,10 @@ export default function CTASection() {
                 />
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-white text-gray-900 text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors shrink-0"
+                  disabled={loading}
+                  className="px-5 py-2.5 bg-white text-gray-900 text-sm font-semibold rounded-lg hover:bg-gray-100 transition-colors shrink-0 disabled:opacity-60"
                 >
-                  Send
+                  {loading ? "Sending…" : "Send"}
                 </button>
               </form>
             )}

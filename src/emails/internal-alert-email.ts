@@ -1,6 +1,6 @@
 interface OrderItem {
   name: string;
-  sku: string;
+  sku?: string;
   quantity: number;
   price: number;
 }
@@ -29,13 +29,14 @@ function fmtDate(iso: string) {
 
 export function renderInternalAlertEmail(d: InternalAlertData): string {
   const po = `#PO-${String(d.poNumber).padStart(5, "0")}`;
+  const orderUrl = `https://theelevatorshop.net/po/${d.orderId}`;
 
-  const itemRows = d.items.map((item, i) => `
-    <tr style="background:${i % 2 === 0 ? "#ffffff" : "#f9fafb"}; border-bottom:1px solid #f3f4f6;">
-      <td style="padding:10px 14px;font-size:13px;font-weight:600;color:#1a2535;">${item.name}<br/><span style="font-size:11px;color:#9ca3af;font-weight:400;">SKU: ${item.sku}</span></td>
-      <td style="padding:10px 14px;text-align:center;font-size:13px;font-weight:700;color:#E87B3A;">${item.quantity}</td>
-      <td style="padding:10px 14px;text-align:right;font-size:13px;color:#374151;">${fmt(item.price)}</td>
-      <td style="padding:10px 14px;text-align:right;font-size:13px;font-weight:700;color:#1a2535;">${fmt(item.price * item.quantity)}</td>
+  const itemRows = d.items.map((item) => `
+    <tr style="border-bottom:1px solid #f1f3f5;">
+      <td style="padding:14px 4px;font-size:13px;font-weight:700;color:#1a2535;line-height:1.4;">${item.name}</td>
+      <td style="padding:14px 4px;text-align:center;font-size:13px;font-weight:700;color:#E87B3A;">${item.quantity}</td>
+      <td style="padding:14px 4px;text-align:right;font-size:13px;color:#374151;">${fmt(item.price)}</td>
+      <td style="padding:14px 4px;text-align:right;font-size:13px;font-weight:700;color:#1a2535;">${fmt(item.price * item.quantity)}</td>
     </tr>
   `).join("");
 
@@ -43,70 +44,100 @@ export function renderInternalAlertEmail(d: InternalAlertData): string {
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>New Order ${po}</title>
 </head>
-<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+      <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
 
-        <!-- TOP BAR -->
+        <!-- TOP NAVY BAR -->
         <tr>
-          <td style="background:#2C3A48;border-radius:12px 12px 0 0;">
-            <div style="height:6px;background:#E87B3A;border-radius:12px 12px 0 0;"></div>
-            <div style="padding:20px 32px;">
-              <p style="margin:0;font-size:11px;font-weight:700;letter-spacing:0.14em;color:rgba(255,255,255,0.5);text-transform:uppercase;">New Purchase Order</p>
-              <p style="margin:4px 0 0;font-size:22px;font-weight:900;color:#ffffff;font-family:ui-monospace,monospace;">${po}</p>
-              <p style="margin:4px 0 0;font-size:12px;color:rgba(255,255,255,0.6);">${fmtDate(d.orderDate)} · ${d.customerName}</p>
-            </div>
+          <td style="background:#2C3A48;padding:0;line-height:0;">
+            <div style="height:56px;background:#2C3A48;border-bottom:4px solid #E87B3A;"></div>
           </td>
         </tr>
 
-        <!-- CUSTOMER + TOTAL -->
+        <!-- HERO: New Order Banner -->
         <tr>
-          <td style="background:#ffffff;padding:24px 32px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
-            <table width="100%" cellpadding="0" cellspacing="0">
+          <td style="background:#ffffff;padding:32px 32px 24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;">
               <tr>
-                <td width="60%">
-                  <p style="margin:0 0 2px;font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9ca3af;text-transform:uppercase;">Customer</p>
-                  <p style="margin:0;font-size:15px;font-weight:700;color:#1a2535;">${d.customerName}</p>
-                  <p style="margin:2px 0 0;font-size:12px;color:#E87B3A;">${d.customerEmail}</p>
-                  <p style="margin:4px 0 0;font-size:12px;color:#6b7280;">Ships to: ${d.shippingCity}, ${d.shippingState}</p>
-                </td>
-                <td width="40%" style="text-align:right;">
-                  <p style="margin:0 0 2px;font-size:10px;font-weight:700;letter-spacing:0.1em;color:#9ca3af;text-transform:uppercase;">Order Total</p>
-                  <p style="margin:0;font-size:26px;font-weight:900;color:#E87B3A;">${fmt(d.total)}</p>
-                  <p style="margin:2px 0 0;font-size:12px;color:#9ca3af;">${d.items.length} item${d.items.length !== 1 ? "s" : ""} · incl. shipping</p>
+                <td style="padding:28px 24px 24px;text-align:center;">
+                  <p style="margin:0 0 6px;font-size:10px;font-weight:700;letter-spacing:0.18em;color:#9ca3af;text-transform:uppercase;">New Purchase Order</p>
+                  <p style="margin:0;font-size:30px;font-weight:900;color:#1a2535;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:0.02em;">${po}</p>
+                  <p style="margin:10px 0 0;font-size:13px;color:#6b7280;">${fmtDate(d.orderDate)} &middot; ${d.customerName}</p>
                 </td>
               </tr>
             </table>
           </td>
         </tr>
 
-        <!-- ITEMS TABLE -->
+        <!-- SUMMARY CARD: Customer + Total -->
         <tr>
-          <td style="background:#ffffff;padding:0 32px 24px;border-left:1px solid #e5e7eb;border-right:1px solid #e5e7eb;">
-            <p style="margin:0 0 12px;font-size:13px;font-weight:800;color:#1a2535;text-transform:uppercase;letter-spacing:0.06em;">Order Items</p>
-            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;border-collapse:collapse;">
+          <td style="background:#ffffff;padding:0 32px 20px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb;border-radius:14px;">
+              <tr>
+                <td style="padding:22px 24px;">
+                  <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td width="60%" style="vertical-align:top;">
+                        <p style="margin:0 0 5px;font-size:10px;font-weight:700;letter-spacing:0.12em;color:#9ca3af;text-transform:uppercase;">Customer</p>
+                        <p style="margin:0;font-size:15px;font-weight:700;color:#1a2535;">${d.customerName}</p>
+                        <p style="margin:3px 0 0;font-size:12px;"><a href="mailto:${d.customerEmail}" style="color:#E87B3A;text-decoration:none;font-weight:600;">${d.customerEmail}</a></p>
+                        <p style="margin:8px 0 0;font-size:12px;color:#6b7280;">Ships to: ${d.shippingCity}, ${d.shippingState}</p>
+                      </td>
+                      <td width="40%" style="vertical-align:top;text-align:right;">
+                        <p style="margin:0 0 5px;font-size:10px;font-weight:700;letter-spacing:0.12em;color:#9ca3af;text-transform:uppercase;">Order Total</p>
+                        <p style="margin:0;font-size:26px;font-weight:600;color:#E87B3A;line-height:1;">${fmt(d.total)}</p>
+                        <p style="margin:6px 0 0;font-size:11px;color:#9ca3af;">${d.items.length} item${d.items.length !== 1 ? "s" : ""} &middot; incl. shipping</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- VIEW BUTTON -->
+        <tr>
+          <td style="background:#ffffff;padding:8px 32px 28px;">
+            <a href="${orderUrl}" style="display:block;padding:14px 16px;background:#1a2535;border:1.5px solid #1a2535;border-radius:10px;font-size:13px;font-weight:700;color:#ffffff;text-decoration:none;text-align:center;">View Purchase Order</a>
+          </td>
+        </tr>
+
+        <!-- ORDER ITEMS -->
+        <tr>
+          <td style="background:#ffffff;padding:0 32px 28px;">
+            <p style="margin:0 0 8px;font-size:15px;font-weight:800;color:#1a2535;">Order Items</p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
               <thead>
-                <tr style="background:#2C3A48;">
-                  <th style="padding:9px 14px;text-align:left;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.1em;">ITEM</th>
-                  <th style="padding:9px 14px;text-align:center;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.1em;width:50px;">QTY</th>
-                  <th style="padding:9px 14px;text-align:right;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.1em;width:90px;">UNIT</th>
-                  <th style="padding:9px 14px;text-align:right;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.1em;width:90px;">TOTAL</th>
+                <tr style="border-bottom:1px solid #e5e7eb;">
+                  <th style="padding:10px 4px;text-align:left;font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:0.12em;text-transform:uppercase;">Item</th>
+                  <th style="padding:10px 4px;text-align:center;font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:0.12em;text-transform:uppercase;width:60px;">Qty</th>
+                  <th style="padding:10px 4px;text-align:right;font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:0.12em;text-transform:uppercase;width:90px;">Unit Price</th>
+                  <th style="padding:10px 4px;text-align:right;font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:0.12em;text-transform:uppercase;width:90px;">Subtotal</th>
                 </tr>
               </thead>
               <tbody>${itemRows}</tbody>
             </table>
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:18px;">
               <tr>
-                <td style="text-align:right;padding:3px 0;font-size:12px;color:#6b7280;">Subtotal <span style="color:#1a2535;font-weight:600;margin-left:32px;">${fmt(d.subtotal)}</span></td>
+                <td style="padding:5px 4px;text-align:right;font-size:13px;color:#6b7280;">Subtotal</td>
+                <td width="110" style="padding:5px 4px;text-align:right;font-size:13px;font-weight:600;color:#1a2535;">${fmt(d.subtotal)}</td>
               </tr>
               <tr>
-                <td style="text-align:right;padding:3px 0;font-size:12px;color:#6b7280;">Shipping <span style="color:#1a2535;font-weight:600;margin-left:32px;">${fmt(d.shippingCost)}</span></td>
+                <td style="padding:5px 4px;text-align:right;font-size:13px;color:#6b7280;">Shipping <span style="color:#9ca3af;">(${d.shippingCity}, ${d.shippingState})</span></td>
+                <td width="110" style="padding:5px 4px;text-align:right;font-size:13px;font-weight:600;color:#1a2535;">${fmt(d.shippingCost)}</td>
               </tr>
               <tr>
-                <td style="text-align:right;padding:8px 0 0;border-top:1px solid #e5e7eb;font-size:15px;font-weight:800;color:#1a2535;">Total <span style="margin-left:32px;">${fmt(d.total)}</span></td>
+                <td colspan="2" style="padding:10px 4px 0;"><div style="height:1px;background:#e5e7eb;"></div></td>
+              </tr>
+              <tr>
+                <td style="padding:14px 4px 0;text-align:right;font-size:16px;font-weight:600;color:#1a2535;">Total</td>
+                <td width="110" style="padding:14px 4px 0;text-align:right;font-size:16px;font-weight:600;color:#1a2535;">${fmt(d.total)}</td>
               </tr>
             </table>
           </td>
@@ -114,9 +145,9 @@ export function renderInternalAlertEmail(d: InternalAlertData): string {
 
         <!-- FOOTER -->
         <tr>
-          <td style="background:#2C3A48;border-radius:0 0 12px 12px;padding:20px 32px;text-align:center;">
-            <p style="margin:0;font-size:14px;font-weight:900;color:#ffffff;">The<span style="color:#E87B3A;">Elevator</span>Shop — Internal</p>
-            <p style="margin:4px 0 0;font-size:10px;color:rgba(255,255,255,0.4);">© ${new Date().getFullYear()} TheElevatorShop. All Rights Reserved.</p>
+          <td style="background:#2C3A48;padding:24px 32px;text-align:center;">
+            <p style="margin:0 0 4px;font-size:15px;font-weight:600;color:#ffffff;">The<span style="color:#E87B3A;">Elevator</span>Shop <span style="color:rgba(255,255,255,0.5);font-weight:400;">&middot; Internal</span></p>
+            <p style="margin:0;font-size:10px;color:rgba(255,255,255,0.4);">© ${new Date().getFullYear()} TheElevatorShop. All Rights Reserved.</p>
           </td>
         </tr>
 

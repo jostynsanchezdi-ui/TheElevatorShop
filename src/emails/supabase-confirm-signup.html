@@ -1,0 +1,93 @@
+<!--
+  Supabase Auth — Confirm Signup
+  Paste this into: Supabase Dashboard → Authentication → Email Templates → "Confirm signup"
+  Supabase variables used: {{ .ConfirmationURL }}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm your email</title>
+</head>
+<body style="margin:0;padding:0;background:#f3f4f6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:24px 12px;">
+    <tr><td align="center">
+      <table width="640" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+
+        <!-- TOP NAVY BAR -->
+        <tr>
+          <td style="background:#2C3A48;padding:0;line-height:0;">
+            <div style="height:56px;background:#2C3A48;border-bottom:4px solid #E87B3A;"></div>
+          </td>
+        </tr>
+
+        <!-- HERO -->
+        <tr>
+          <td style="background:#ffffff;padding:36px 32px 24px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;">
+              <tr>
+                <td style="padding:40px 24px 32px;text-align:center;">
+                  <h1 style="margin:0 0 14px;font-size:24px;font-weight:800;color:#1a2535;line-height:1.2;">Confirm your email</h1>
+                  <p style="margin:0 auto;font-size:13px;color:#6b7280;line-height:1.65;max-width:400px;">Thanks for signing up to TheElevatorShop. To finish creating your account, please confirm your email address by clicking the button below.</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- CONFIRM BUTTON -->
+        <tr>
+          <td style="background:#ffffff;padding:0 32px 24px;" align="center">
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="border-radius:10px;background:#1a2535;">
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:14px 38px;background:#1a2535;border:1.5px solid #1a2535;border-radius:10px;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Confirm Email</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- DISCLAIMER -->
+        <tr>
+          <td style="background:#ffffff;padding:0 32px 32px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff3eb;border-radius:14px;">
+              <tr>
+                <td style="padding:18px 22px;">
+                  <p style="margin:0;font-size:12px;color:#7c2d12;line-height:1.6;"><strong>Didn't sign up?</strong> You can safely ignore this email. Your address won't be added to TheElevatorShop without confirmation.</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- QUESTIONS -->
+        <tr>
+          <td style="background:#ffffff;padding:0 32px 36px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#1a2535;">Need help?</p>
+            <a href="mailto:sales@theelevatorshop.net" style="font-size:13px;color:#E87B3A;font-weight:700;text-decoration:none;">sales@theelevatorshop.net</a>
+          </td>
+        </tr>
+
+        <!-- FOOTER -->
+        <tr>
+          <td style="background:#2C3A48;padding:28px 32px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:17px;font-weight:600;color:#ffffff;">The<span style="color:#E87B3A;">Elevator</span>Shop</p>
+            <p style="margin:0 0 16px;font-size:11px;color:rgba(255,255,255,0.5);">Long Island City, NY 11101</p>
+            <p style="margin:0 0 14px;font-size:11px;">
+              <a href="https://theelevatorshop.net/about" style="color:rgba(255,255,255,0.7);text-decoration:none;margin:0 8px;">About</a>
+              <span style="color:rgba(255,255,255,0.3);">&middot;</span>
+              <a href="https://theelevatorshop.net/contact" style="color:rgba(255,255,255,0.7);text-decoration:none;margin:0 8px;">Contact</a>
+              <span style="color:rgba(255,255,255,0.3);">&middot;</span>
+              <a href="https://theelevatorshop.net/shop" style="color:rgba(255,255,255,0.7);text-decoration:none;margin:0 8px;">Shop</a>
+            </p>
+            <p style="margin:0;font-size:10px;color:rgba(255,255,255,0.4);">&copy; 2026 TheElevatorShop. All Rights Reserved.</p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

@@ -245,12 +245,8 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
             {product.description}
           </p>
 
-          {/* Stock */}
-          {product.stock > 10 ? (
-            <span className="self-start text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-700">10+ in stock</span>
-          ) : product.stock > 0 ? (
-            <span className="self-start text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700">Only {product.stock} left</span>
-          ) : (
+          {/* Stock — only show when out of stock */}
+          {product.stock <= 0 && (
             <span className="self-start text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600">Out of stock</span>
           )}
 

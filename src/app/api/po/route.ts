@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
   const billing = addr.billing ?? {};
   const customerEmail = billing.email ?? addr.email ?? null;
   const customerName = billing.full_name ?? addr.full_name ?? "Customer";
+  const viewUrl = `${APP_URL}/po/${data.id}`;
   const downloadUrl = `${APP_URL}/po/${data.id}?print=1`;
 
   if (customerEmail) {
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest) {
         state: billing.state ?? null,
         zip: billing.zip ?? null,
       },
+      viewUrl,
       downloadUrl,
     });
 
@@ -82,13 +84,13 @@ export async function POST(req: NextRequest) {
 
     await Promise.all([
       resend.emails.send({
-        from: "orders@theelevatorshop.net",
+        from: "sales@theelevatorshop.net",
         to: customerEmail,
         subject: `Order Confirmation · ${po}`,
         html: clientHtml,
       }),
       resend.emails.send({
-        from: "orders@theelevatorshop.net",
+        from: "sales@theelevatorshop.net",
         to: "sales@theelevatorshop.net",
         subject: `New Order ${po} — ${customerName} — $${(body.total / 100).toFixed(2)}`,
         html: internalHtml,

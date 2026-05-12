@@ -174,7 +174,7 @@ export default function Navbar({
 
         {/* Logo */}
         <Link href="/" className="hidden lg:flex items-center shrink-0">
-          <Image src="/logo.png" alt="The Elevator Shop" width={180} height={54} priority unoptimized />
+          <Image src="/logo.png" alt="The Elevator Shop" width={360} height={112} priority quality={100} sizes="180px" style={{ width: 180, height: "auto" }} />
         </Link>
 
         {/* Desktop — nav truly centered in full header */}
@@ -371,7 +371,7 @@ export default function Navbar({
 
         {/* Mobile logo */}
         <Link href="/" className="flex lg:hidden items-center">
-          <Image src="/logo.png" alt="The Elevator Shop" width={130} height={39} priority unoptimized />
+          <Image src="/logo.png" alt="The Elevator Shop" width={260} height={81} priority quality={100} sizes="130px" style={{ width: 130, height: "auto" }} />
         </Link>
 
         {/* Mobile right actions */}

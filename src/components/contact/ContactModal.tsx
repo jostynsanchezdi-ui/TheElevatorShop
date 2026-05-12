@@ -31,10 +31,28 @@ export default function ContactModal() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    timersRef.current.push(setTimeout(() => { setLoading(false); setSubmitted(true); }, 1200));
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          subject: form.service,
+          message: form.message,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to send");
+      setSubmitted(true);
+    } catch (err) {
+      console.error(err);
+      alert("Sorry, something went wrong. Please try again or email us at sales@theelevatorshop.net");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
