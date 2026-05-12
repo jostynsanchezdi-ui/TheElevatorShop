@@ -142,25 +142,6 @@ export default function RegisterPage() {
                 </motion.button>
               </form>
 
-              <div className="flex items-center gap-3 my-5">
-                <div className="flex-1 h-px bg-gray-200" />
-                <span className="text-xs text-gray-400">or continue with</span>
-                <div className="flex-1 h-px bg-gray-200" />
-              </div>
-
-              <div className="flex gap-3">
-                {[
-                  { label: "G", bg: "bg-white border border-gray-200", text: "text-[#EA4335]", title: "Google" },
-                  { label: "f", bg: "bg-[#1877F2]", text: "text-white", title: "Facebook" },
-                  { label: "in", bg: "bg-[#0A66C2]", text: "text-white", title: "LinkedIn" },
-                ].map(({ label, bg, text, title }) => (
-                  <button key={title} title={title}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-bold ${bg} ${text} hover:opacity-80 transition-opacity`}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-
               <p className="text-xs text-gray-400 text-center mt-5">
                 Already have an account?{" "}
                 <Link href="/auth/login" className="text-[#E87B3A] font-semibold hover:underline">Sign in</Link>

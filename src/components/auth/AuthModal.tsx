@@ -207,8 +207,6 @@ export default function AuthModal() {
                             : "Sign In"}
                         </motion.button>
                       </form>
-                      <Divider />
-                      <SocialButtons />
                       <p className="text-xs text-gray-400 text-center mt-5">
                         Don&apos;t have an account?{" "}
                         <button onClick={switchToRegister} className="text-[#E87B3A] font-semibold hover:underline">Sign up</button>
@@ -277,8 +275,6 @@ export default function AuthModal() {
                             : "Get Started"}
                         </motion.button>
                       </form>
-                      <Divider />
-                      <SocialButtons />
                       <p className="text-xs text-gray-400 text-center mt-4">
                         Already have an account?{" "}
                         <button onClick={switchToLogin} className="text-[#E87B3A] font-semibold hover:underline">Sign in</button>
@@ -312,37 +308,3 @@ export default function AuthModal() {
   );
 }
 
-function Divider() {
-  return (
-    <div className="flex items-center gap-3 my-4">
-      <div className="flex-1 h-px bg-gray-200" />
-      <span className="text-xs text-gray-400">or continue with</span>
-      <div className="flex-1 h-px bg-gray-200" />
-    </div>
-  );
-}
-
-function SocialButtons() {
-  return (
-    <div className="flex gap-2">
-      {/* Google */}
-      <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-white border border-gray-200 hover:bg-gray-50 transition-colors">
-        <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <path fill="#EA4335" d="M24 9.5c3.14 0 5.95 1.08 8.17 2.84l6.1-6.1C34.46 3.09 29.5 1 24 1 14.82 1 7.07 6.48 3.64 14.22l7.1 5.52C12.4 13.67 17.73 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.52 24.5c0-1.64-.15-3.22-.42-4.75H24v9h12.7c-.55 2.98-2.2 5.5-4.67 7.2l7.18 5.57C43.27 37.27 46.52 31.36 46.52 24.5z"/>
-          <path fill="#FBBC05" d="M10.74 28.26A14.6 14.6 0 0 1 9.5 24c0-1.48.26-2.91.74-4.26l-7.1-5.52A23.93 23.93 0 0 0 0 24c0 3.87.93 7.53 2.56 10.76l8.18-6.5z"/>
-          <path fill="#34A853" d="M24 47c5.5 0 10.12-1.82 13.5-4.94l-7.18-5.57C28.6 38.3 26.44 39 24 39c-6.27 0-11.6-4.17-13.26-9.74l-8.18 6.5C6.07 43.52 14.44 47 24 47z"/>
-        </svg>
-        <span className="text-sm font-semibold text-gray-700">Google</span>
-      </button>
-
-      {/* Facebook */}
-      <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-[#1877F2] hover:bg-[#1464d8] transition-colors">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956 1.883v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/>
-        </svg>
-        <span className="text-sm font-semibold text-white">Facebook</span>
-      </button>
-    </div>
-  );
-}
