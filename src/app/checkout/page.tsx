@@ -82,11 +82,26 @@ function InlineAddressForm({
     if (userId) {
       const { data, error: err } = await supabase
         .from("user_addresses")
-        .insert({ user_id: userId, ...form, is_default: false })
+        .insert({
+          user_id: userId,
+          label: form.label,
+          full_name: form.full_name,
+          line1: form.line1,
+          line2: form.line2 || null,
+          city: form.city,
+          state: form.state,
+          zip: form.zip,
+          country: "US",
+          is_default: false,
+        })
         .select()
         .single();
       setSaving(false);
-      if (err) { setError("Could not save address. Please try again."); return; }
+      if (err) {
+        console.error("[checkout] save address error:", err);
+        setError(err.message || "Could not save address. Please try again.");
+        return;
+      }
       onSaved(data as Address);
       return;
     }
