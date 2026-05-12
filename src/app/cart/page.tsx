@@ -226,7 +226,7 @@ export default function CartPage() {
                     <p className="text-xs text-gray-500 leading-relaxed">
                       <span className="font-semibold text-[#2C3A48]">Minimum order: $1,000.00.</span>{" "}
                       {subtotal < 100_000
-                        ? `Add ${formatPrice(100_000 - subtotal)} more to proceed to checkout.`
+                        ? `Add ${formatPrice(100_000 - subtotal)} more to get a purchase order.`
                         : "Your order meets the minimum requirement."}
                     </p>
                   </div>

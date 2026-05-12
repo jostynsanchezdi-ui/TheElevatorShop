@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Share2, Instagram } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 
 const COMPANY_LINKS = [
   { href: "/about", label: "About Us" },
@@ -7,8 +7,8 @@ const COMPANY_LINKS = [
 ];
 
 const SOCIAL = [
-  { href: "https://linkedin.com", icon: Share2, label: "LinkedIn" },
-  { href: "https://instagram.com", icon: Instagram, label: "Instagram" },
+  { href: "https://www.instagram.com/theelevatorshopllc/", icon: Instagram, label: "Instagram" },
+  { href: "mailto:sales@theelevatorshop.net", icon: Mail, label: "Email" },
 ];
 
 export default function Footer() {

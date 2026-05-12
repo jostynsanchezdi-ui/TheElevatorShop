@@ -12,23 +12,13 @@ const fadeUp: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 };
 
-const SUBJECTS = [
-  "Select a subject…",
-  "Elevator Parts & Components",
-  "Hydraulic Systems",
-  "Electrical & Controls",
-  "Modernization",
-  "Preventive Maintenance",
-  "Emergency Repair",
-  "Other",
-];
 
 export default function AboutPage() {
   const [form, setForm] = useState({ name: "", email: "", service: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
@@ -185,12 +175,9 @@ export default function AboutPage() {
 
                   <div className="flex flex-col gap-1.5">
                     <label htmlFor="ab-service" className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Subject</label>
-                    <select id="ab-service" name="service" value={form.service} onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition appearance-none">
-                      {SUBJECTS.map((s) => (
-                        <option key={s} value={s === SUBJECTS[0] ? "" : s}>{s}</option>
-                      ))}
-                    </select>
+                    <input id="ab-service" name="service" type="text" value={form.service} onChange={handleChange}
+                      placeholder="How can we help you?"
+                      className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition" />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
@@ -201,7 +188,7 @@ export default function AboutPage() {
                   </div>
 
                   <motion.button type="submit" disabled={loading} whileTap={{ scale: 0.97 }}
-                    className="relative flex items-center gap-3 self-start pl-2 pr-6 py-2 bg-[#E87B3A] text-white text-sm font-bold rounded-full overflow-hidden disabled:opacity-70 transition-colors hover:bg-[#d06b2a]">
+                    className="relative flex items-center gap-3 mx-auto pl-2 pr-6 py-2 bg-[#E87B3A] text-white text-sm font-bold rounded-full overflow-hidden disabled:opacity-70 transition-colors hover:bg-[#d06b2a]">
                     <span className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                       {loading ? (
                         <motion.span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full block"

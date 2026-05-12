@@ -5,16 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, ArrowRight, CheckCircle } from "lucide-react";
 import { useContactModal } from "@/lib/contact-modal-store";
 
-const SERVICES = [
-  "Select a service…",
-  "Elevator Parts & Components",
-  "Hydraulic Systems",
-  "Electrical & Controls",
-  "Modernization",
-  "Preventive Maintenance",
-  "Emergency Repair",
-  "Other",
-];
 
 export default function ContactModal() {
   const { open, hide } = useContactModal();
@@ -38,7 +28,7 @@ export default function ContactModal() {
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -167,12 +157,9 @@ export default function ContactModal() {
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-xs font-semibold text-gray-500">Subject</label>
-                          <select name="service" value={form.service} onChange={handleChange}
-                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition appearance-none">
-                            {SERVICES.map((s) => (
-                              <option key={s} value={s === SERVICES[0] ? "" : s}>{s}</option>
-                            ))}
-                          </select>
+                          <input name="service" type="text" value={form.service} onChange={handleChange}
+                            placeholder="How can we help you?"
+                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#E87B3A]/30 focus:border-[#E87B3A] transition" />
                         </div>
 
                         <div className="flex flex-col gap-1.5">

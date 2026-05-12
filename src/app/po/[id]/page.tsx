@@ -354,7 +354,7 @@ export default function POPage() {
             <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ fontSize: 11, color: "#9ca3af" }}>sales@theelevatorshop.net</span>
               <span style={{ fontSize: 11, color: "#9ca3af" }}>Long Island City, NY 11101</span>
-              <span style={{ fontSize: 11, color: "#9ca3af" }}>www.theelevatorshop.com</span>
+              <span style={{ fontSize: 11, color: "#9ca3af" }}>www.theelevatorshop.net</span>
             </div>
 
           </div>{/* end content */}

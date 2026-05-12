@@ -1,38 +1,42 @@
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
-const TOKEN_FILE = process.env.NETLIFY
-  ? path.join("/tmp", "zoho-token.json")
-  : path.join(process.cwd(), ".next", "zoho-token.json");
+const admin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 interface TokenCache {
   access_token: string;
   expires_at: number;
 }
 
-// In-memory cache — survives multiple invocations within the same warm container
+// In-memory fallback — valid within a single warm container
 let memCache: TokenCache | null = null;
 
-function readCache(): TokenCache | null {
+async function readCache(): Promise<TokenCache | null> {
   if (memCache && Date.now() < memCache.expires_at - 60_000) return memCache;
-  try {
-    const raw = fs.readFileSync(TOKEN_FILE, "utf8");
-    const parsed = JSON.parse(raw) as TokenCache;
-    if (Date.now() < parsed.expires_at - 60_000) {
-      memCache = parsed;
-      return parsed;
-    }
-  } catch {}
+
+  const { data } = await admin
+    .from("zoho_token_cache")
+    .select("access_token, expires_at")
+    .eq("key", "zoho")
+    .single();
+
+  if (data && data.access_token && Date.now() < data.expires_at - 60_000) {
+    memCache = { access_token: data.access_token, expires_at: data.expires_at };
+    return memCache;
+  }
   return null;
 }
 
-function writeCache(token: string, expiresIn: number) {
-  const entry: TokenCache = { access_token: token, expires_at: Date.now() + expiresIn * 1000 };
-  memCache = entry;
-  try {
-    fs.mkdirSync(path.dirname(TOKEN_FILE), { recursive: true });
-    fs.writeFileSync(TOKEN_FILE, JSON.stringify(entry));
-  } catch {}
+async function writeCache(token: string, expiresIn: number) {
+  const expires_at = Date.now() + expiresIn * 1000;
+  memCache = { access_token: token, expires_at };
+
+  await admin.from("zoho_token_cache").upsert(
+    { key: "zoho", access_token: token, expires_at },
+    { onConflict: "key" }
+  );
 }
 
 let refreshPromise: Promise<string> | null = null;
@@ -46,8 +50,8 @@ async function doRefresh(): Promise<string> {
     grant_type: "refresh_token",
   });
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 1000 * attempt));
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 2000 * attempt));
     const res = await fetch(`${accountsUrl}/oauth/v2/token`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -55,17 +59,16 @@ async function doRefresh(): Promise<string> {
     });
     const data = await res.json();
     if (data.access_token) {
-      writeCache(data.access_token, data.expires_in ?? 3600);
+      await writeCache(data.access_token, data.expires_in ?? 3600);
       return data.access_token as string;
     }
-    // If Zoho says "too many requests", wait and retry
-    if (data.error !== "too_many_requests" && attempt === 0) break;
+    if (data.error !== "too_many_requests") break;
   }
   throw new Error("Zoho token refresh failed after retries");
 }
 
 export async function getZohoAccessToken(): Promise<string> {
-  const cached = readCache();
+  const cached = await readCache();
   if (cached) return cached.access_token;
 
   if (refreshPromise) return refreshPromise;
