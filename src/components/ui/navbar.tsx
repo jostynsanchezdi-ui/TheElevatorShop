@@ -27,6 +27,7 @@ import {
   SheetContent,
 } from "@/components/ui/sheet";
 import { useCategoriesModal } from "@/lib/categories-modal-store";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 
 interface MenuItem {
@@ -413,7 +414,7 @@ export default function Navbar({
 interface MobileBottomNavProps {
   cartCount: number;
   wishlistCount: number;
-  user: ReturnType<typeof useAuth>["user"];
+  user: SupabaseUser | null;
   onOpenAuth: (mode: "login" | "register") => void;
   onOpenContact: () => void;
   onOpenAccountInfo: () => void;
