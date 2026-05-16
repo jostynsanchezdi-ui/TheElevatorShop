@@ -34,10 +34,14 @@ interface ShopSidebarProps {
   selected: string;
   onSelect: (id: string) => void;
   categories?: SidebarCategory[];
+  defaultExpandAll?: boolean;
 }
 
-export default function ShopSidebar({ selected, onSelect, categories = [] }: ShopSidebarProps) {
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+export default function ShopSidebar({ selected, onSelect, categories = [], defaultExpandAll = false }: ShopSidebarProps) {
+  const initialExpanded = defaultExpandAll
+    ? Object.fromEntries(categories.filter((c) => c.subcategories?.length).map((c) => [c.id, true]))
+    : {};
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(initialExpanded);
   const toggle = (id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] }));
 
   const all: SidebarCategory = { id: "all", label: "All Parts" };
@@ -45,7 +49,7 @@ export default function ShopSidebar({ selected, onSelect, categories = [] }: Sho
 
   return (
     <aside className="w-full lg:w-56 shrink-0">
-      <p className="text-sm font-bold text-gray-900 mb-3">Category</p>
+      {!defaultExpandAll && <p className="text-sm font-bold text-gray-900 mb-3">Category</p>}
       <ul className="space-y-0.5">
         {items.map((cat) => {
           const isSelected = selected === cat.id;

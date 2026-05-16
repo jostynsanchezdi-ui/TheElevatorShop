@@ -37,9 +37,19 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex min-h-[580px]">
+      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row min-h-[580px]">
 
-        {/* ── Left panel ── */}
+        {/* ── Mobile top banner ── */}
+        <div
+          className="lg:hidden relative overflow-hidden flex items-center justify-center px-6 py-7"
+          style={{ background: "linear-gradient(135deg, #1a2535 0%, #2C3A48 45%, #E87B3A 100%)" }}
+        >
+          <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")" }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logosigninup.png" alt="The Elevator Shop" width={160} className="relative z-10" />
+        </div>
+
+        {/* ── Left panel (desktop) ── */}
         <div
           className="hidden lg:flex flex-col justify-between w-[42%] shrink-0 p-10 relative overflow-hidden"
           style={{ background: "linear-gradient(135deg, #1a2535 0%, #2C3A48 40%, #E87B3A 100%)" }}

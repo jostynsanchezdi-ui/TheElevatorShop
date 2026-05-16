@@ -284,27 +284,29 @@ function OrderConfirmation({ onClear, orderId }: { onClear: () => void; orderId:
         {/* PO Download */}
         <motion.div
           initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-          className="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 flex items-center gap-4 text-left"
+          className="w-full p-4 rounded-2xl bg-gray-50 border border-gray-200 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 text-left"
         >
-          <div className="w-10 h-12 rounded-lg bg-[#2C3A48] flex items-center justify-center shrink-0">
-            <FileText className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-[#2C3A48] flex items-center justify-center shrink-0">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[#2C3A48]">Purchase Order</p>
+              <p className="text-xs text-gray-400 mt-0.5">Your PO is ready to view or download</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-[#2C3A48]">Purchase Order</p>
-            <p className="text-xs text-gray-400 mt-0.5">Your PO is ready to view or download</p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
             <button
               onClick={handleView}
               disabled={!orderId}
-              className="px-3 py-1.5 text-xs font-semibold text-[#2C3A48] border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-initial px-3 py-2 sm:py-1.5 text-xs font-semibold text-[#2C3A48] border border-gray-200 bg-white rounded-lg hover:bg-gray-100 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <ExternalLink className="w-3 h-3" /> View
             </button>
             <button
               onClick={handleDownload}
               disabled={!orderId}
-              className="px-3 py-1.5 text-xs font-semibold bg-[#2C3A48] text-white rounded-lg hover:bg-[#1e2a35] transition-colors flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 sm:flex-initial px-3 py-2 sm:py-1.5 text-xs font-semibold bg-[#2C3A48] text-white rounded-lg hover:bg-[#1e2a35] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Download className="w-3 h-3" /> Download
             </button>

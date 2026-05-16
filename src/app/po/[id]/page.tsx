@@ -77,7 +77,11 @@ export default function POPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [docHeight, setDocHeight] = useState<number | null>(null);
   const docRef = useRef<HTMLDivElement>(null);
+  const scalerRef = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function load() {
@@ -94,9 +98,34 @@ export default function POPage() {
     load();
   }, [id]);
 
+  // Auto-fit doc to viewport on mobile (visual scale only — html2canvas still captures 820px)
+  useEffect(() => {
+    if (!order) return;
+    const update = () => {
+      const containerW = outerRef.current?.offsetWidth ?? window.innerWidth;
+      const target = Math.max(0, containerW - 16);
+      const newScale = Math.min(1, target / 820);
+      setScale(newScale);
+      if (docRef.current) setDocHeight(docRef.current.offsetHeight);
+    };
+    update();
+    window.addEventListener("resize", update);
+    const ro = new ResizeObserver(update);
+    if (docRef.current) ro.observe(docRef.current);
+    return () => {
+      window.removeEventListener("resize", update);
+      ro.disconnect();
+    };
+  }, [order]);
+
   const handleDownload = useCallback(async (filename: string) => {
     if (!docRef.current) return;
     setDownloading(true);
+    // Remove visual scale transform so html2canvas captures at 820px full size
+    const scaler = scalerRef.current;
+    const prevTransform = scaler?.style.transform ?? "";
+    if (scaler) scaler.style.transform = "none";
+    await new Promise<void>((r) => requestAnimationFrame(() => r()));
     try {
       const html2canvas = (await import("html2canvas")).default;
       const jsPDF = (await import("jspdf")).default;
@@ -125,6 +154,7 @@ export default function POPage() {
       pdf.addImage(imgData, "PNG", 0, 0, pdfW, pdfH);
       pdf.save(filename);
     } finally {
+      if (scaler) scaler.style.transform = prevTransform;
       setDownloading(false);
     }
   }, []);
@@ -187,7 +217,7 @@ export default function POPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-200 text-[#2C3A48] text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 border border-gray-200 text-[#2C3A48] text-sm font-semibold rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Printer className="w-4 h-4" /> Print
           </button>
@@ -204,7 +234,24 @@ export default function POPage() {
 
       {/* Page background */}
       <div className="po-wrap min-h-screen bg-gray-100 py-10 px-4">
-        <div ref={docRef} className="po-doc bg-white max-w-[820px] mx-auto shadow-xl rounded-xl overflow-hidden" style={{ display: "flex" }}>
+        <div
+          ref={outerRef}
+          className="mx-auto"
+          style={{
+            width: 820 * scale,
+            height: docHeight !== null ? docHeight * scale : undefined,
+            maxWidth: "100%",
+          }}
+        >
+        <div
+          ref={scalerRef}
+          style={{
+            transform: scale < 1 ? `scale(${scale})` : "none",
+            transformOrigin: "top left",
+            width: 820,
+          }}
+        >
+        <div ref={docRef} className="po-doc bg-white shadow-xl rounded-xl overflow-hidden" style={{ display: "flex", width: 820 }}>
 
           {/* ── Left orange stripe ── */}
           <div style={{ width: 9, background: "#E87B3A", flexShrink: 0 }} />
@@ -359,6 +406,8 @@ export default function POPage() {
 
           </div>{/* end content */}
         </div>{/* end po-doc */}
+        </div>{/* end scaler */}
+        </div>{/* end outer */}
       </div>
     </>
   );

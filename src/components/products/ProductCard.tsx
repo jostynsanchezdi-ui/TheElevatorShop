@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import {
-  Package, ShoppingCart, Heart,
+  Package, ShoppingCart, Heart, Plus,
   Plug, Zap, Wrench, ShieldCheck, Box, Settings, Cpu,
 } from "lucide-react";
 import { clsx } from "clsx";
@@ -227,8 +227,12 @@ export default function ProductCard({ product, className, onClick }: ProductCard
                   style={{ background: "#E87B3A", transformOrigin: "center" }} />
               )}
             </AnimatePresence>
-            <ShoppingCart className="w-3.5 h-3.5 relative z-10" />
-            <span className="relative z-10">{product.stock <= 0 ? "Out of Stock" : "Add to Cart"}</span>
+            {/* Mobile: icon-only (cart + plus). Desktop: text. Same UI regardless of stock — disabled state shows greyed out. */}
+            <span className="sm:hidden relative z-10 flex items-center gap-0.5">
+              <ShoppingCart className="w-4 h-4 shrink-0" />
+              <Plus className="w-3 h-3 shrink-0" strokeWidth={3} />
+            </span>
+            <span className="hidden sm:inline relative z-10 whitespace-nowrap">Add to Cart</span>
           </motion.button>
         </div>
       </div>

@@ -7,7 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
 import ShopSidebar from "@/components/layout/ShopSidebar";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useProducts } from "@/lib/use-products";
+import { useCategoriesModal } from "@/lib/categories-modal-store";
 import type { MockProduct } from "@/lib/mock-data";
 
 const PAGE_SIZE = 6;
@@ -20,6 +22,8 @@ export default function ProductsSection() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null);
+  const mobileCategoriesOpen = useCategoriesModal((s) => s.open);
+  const setMobileCategoriesOpen = useCategoriesModal((s) => s.setOpen);
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -31,6 +35,7 @@ export default function ProductsSection() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
 
   const suggestions = useMemo(() => {
     if (!search.trim()) return [];
@@ -67,7 +72,20 @@ export default function ProductsSection() {
   const handleCategory = (id: string) => {
     setCategory(id);
     setPage(1);
+    setMobileCategoriesOpen(false);
   };
+
+  // Resolve breadcrumb labels for the current selection
+  const breadcrumb = useMemo(() => {
+    if (category === "all") return { parent: "All Parts", child: null as string | null };
+    const top = categories.find((c) => c.id === category);
+    if (top) return { parent: top.label, child: null };
+    for (const c of categories) {
+      const sub = c.subcategories?.find((s) => s.id === category);
+      if (sub) return { parent: c.label, child: sub.label };
+    }
+    return { parent: "All Parts", child: null };
+  }, [category, categories]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -81,13 +99,37 @@ export default function ProductsSection() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16 lg:py-16">
+      {/* Mobile categories sheet (triggered from bottom nav) */}
+      <Sheet open={mobileCategoriesOpen} onOpenChange={setMobileCategoriesOpen}>
+        <SheetContent side="left" hideClose className="w-64 overflow-y-auto bg-white !top-14 !bottom-[68px] !h-auto pt-6">
+          <ShopSidebar selected={category} onSelect={handleCategory} categories={categories} defaultExpandAll />
+        </SheetContent>
+      </Sheet>
+
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
-        <ShopSidebar selected={category} onSelect={handleCategory} categories={categories} />
+        {/* Desktop sidebar */}
+        <div className="hidden lg:block">
+          <ShopSidebar selected={category} onSelect={handleCategory} categories={categories} />
+        </div>
 
         {/* Grid + pagination */}
         <div className="flex-1 min-w-0">
+
+          {/* Breadcrumb — sticky below top header */}
+          <div className="sticky top-14 lg:top-16 z-30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-2.5 mb-3 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+            <div className="flex items-center gap-1.5 text-xs font-medium min-w-0">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 whitespace-nowrap">Browsing</span>
+              <span className="text-gray-300">·</span>
+              <span className={`${breadcrumb.child ? "text-gray-500" : "text-[#E87B3A] font-semibold"} whitespace-nowrap`}>{breadcrumb.parent}</span>
+              {breadcrumb.child && (
+                <>
+                  <ChevronRight className="w-3 h-3 text-gray-300 shrink-0" />
+                  <span className="text-[#E87B3A] font-semibold break-words leading-tight">{breadcrumb.child}</span>
+                </>
+              )}
+            </div>
+          </div>
 
           {/* Search bar */}
           <div ref={searchRef} className="relative mb-5">

@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${dmSans.variable} ${jetbrainsMono.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-white font-sans antialiased">
+      <body className="min-h-full flex flex-col bg-white font-sans antialiased pb-[68px] lg:pb-0">
         <AuthProvider>
           {children}
           <AuthModal />

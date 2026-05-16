@@ -12,7 +12,9 @@ export default function Home() {
       <WelcomeModal />
       <Header />
       <main className="flex-1">
-        <HeroSection />
+        <div className="hidden lg:block">
+          <HeroSection />
+        </div>
         <ProductsSection />
         <RecommendationsSection />
         <CTASection />

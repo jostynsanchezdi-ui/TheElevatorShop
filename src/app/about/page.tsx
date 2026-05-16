@@ -71,10 +71,10 @@ export default function AboutPage() {
               <span className="inline-block text-xs font-bold tracking-[0.2em] uppercase text-[#E87B3A] mb-4">
                 Who We Are
               </span>
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-6">
-                Your Trusted Source<br />
-                for <span className="text-[#E87B3A]">Elevator Parts</span> online,<br />
-                Delivered to you.
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-6">
+                Your Trusted Source for<br />
+                <span className="text-[#E87B3A]">Elevator Parts</span> online,<br />
+                Delivered to you
               </h1>
               <p className="text-sm text-white/60 leading-relaxed max-w-md mb-8">
                 The Elevator Shop is a New York State authorized distributor of elevator components — operating 100% online, with a dedicated warehouse and a team ready to help you.

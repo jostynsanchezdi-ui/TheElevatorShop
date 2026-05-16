@@ -297,7 +297,7 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
                 )}
               </AnimatePresence>
               <ShoppingCart className="w-4 h-4 relative z-10" />
-              <span className="relative z-10">{product.stock <= 0 ? "Out of Stock" : "Add to Cart"}</span>
+              <span className="relative z-10">Add to Cart</span>
             </motion.button>
           </div>
 
