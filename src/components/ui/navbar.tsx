@@ -443,51 +443,51 @@ function MobileBottomNav({
   return (
     <>
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-white border-t border-[#e5e7eb] shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-4 h-[68px]">
+        <div className="grid grid-cols-4 h-[56px]">
           {/* Categories */}
           <motion.button
             onClick={toggleCategories}
             whileTap={{ scale: 0.88 }}
             aria-label="Categories"
             aria-pressed={categoriesOpen}
-            className={`flex flex-col items-center justify-center gap-1 transition-colors ${categoriesOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
+            className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${categoriesOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
           >
-            <LayoutGrid className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Categories</span>
+            <LayoutGrid className="w-[18px] h-[18px]" />
+            <span className="text-[9px] font-medium leading-none">Categories</span>
           </motion.button>
 
           {/* Cart */}
           <Link
             href="/cart"
             aria-label="Cart"
-            className="flex flex-col items-center justify-center gap-1 text-[#2C3A48] active:bg-orange-50 transition-colors relative"
+            className="flex flex-col items-center justify-center gap-0.5 text-[#2C3A48] active:bg-orange-50 transition-colors relative"
           >
             <div className="relative">
-              <ShoppingCart className="w-5 h-5" />
+              <ShoppingCart className="w-[18px] h-[18px]" />
               {cartCount > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[10px] font-bold text-white">
+                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[9px] font-bold text-white">
                   {cartCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-medium">Cart</span>
+            <span className="text-[9px] font-medium leading-none">Cart</span>
           </Link>
 
           {/* Wishlist */}
           <Link
             href="/wishlist"
             aria-label="Wishlist"
-            className="flex flex-col items-center justify-center gap-1 text-[#2C3A48] active:bg-orange-50 transition-colors relative"
+            className="flex flex-col items-center justify-center gap-0.5 text-[#2C3A48] active:bg-orange-50 transition-colors relative"
           >
             <div className="relative">
-              <Heart className="w-5 h-5" />
+              <Heart className="w-[18px] h-[18px]" />
               {wishlistCount > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[10px] font-bold text-white">
+                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[9px] font-bold text-white">
                   {wishlistCount}
                 </span>
               )}
             </div>
-            <span className="text-[10px] font-medium">Wishlist</span>
+            <span className="text-[9px] font-medium leading-none">Wishlist</span>
           </Link>
 
           {/* More (hamburger) */}
@@ -496,17 +496,17 @@ function MobileBottomNav({
             whileTap={{ scale: 0.88 }}
             aria-label="More menu"
             aria-pressed={menuOpen}
-            className={`flex flex-col items-center justify-center gap-1 transition-colors ${menuOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
+            className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${menuOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
           >
-            <Menu className="w-5 h-5" />
-            <span className="text-[10px] font-medium">More</span>
+            <Menu className="w-[18px] h-[18px]" />
+            <span className="text-[9px] font-medium leading-none">More</span>
           </motion.button>
         </div>
       </nav>
 
       {/* More menu sheet */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="right" hideClose className="w-56 overflow-y-auto bg-white !top-14 !bottom-[68px] !h-auto pt-6">
+        <SheetContent side="right" hideClose className="w-56 overflow-y-auto bg-white !top-14 !bottom-[56px] !h-auto pt-6">
           <nav className="flex flex-col gap-1">
             <Link
               href="/about"

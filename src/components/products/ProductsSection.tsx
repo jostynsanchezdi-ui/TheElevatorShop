@@ -102,7 +102,7 @@ export default function ProductsSection() {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16 lg:py-16">
       {/* Mobile categories sheet (triggered from bottom nav) */}
       <Sheet open={mobileCategoriesOpen} onOpenChange={setMobileCategoriesOpen}>
-        <SheetContent side="left" hideClose className="w-64 overflow-y-auto bg-white !top-14 !bottom-[68px] !h-auto pt-6">
+        <SheetContent side="left" hideClose className="w-64 overflow-y-auto bg-white !top-14 !bottom-[56px] !h-auto pt-6">
           <ShopSidebar selected={category} onSelect={handleCategory} categories={categories} defaultExpandAll />
         </SheetContent>
       </Sheet>
