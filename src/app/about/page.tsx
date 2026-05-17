@@ -99,7 +99,7 @@ export default function AboutPage() {
               className="flex flex-col gap-4 w-full lg:w-72 shrink-0"
             >
               {[
-                { label: "Ships Nationwide", sub: "Online orders only", icon: Truck },
+                { label: "Ships within NY", sub: "Online orders only", icon: Truck },
                 { label: "Long Island City, NY", sub: "Warehouse & fulfillment", icon: MapPin },
               ].map(({ label, sub, icon: Icon }) => (
                 <div key={label}

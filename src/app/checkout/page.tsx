@@ -36,7 +36,7 @@ function formatPrice(cents: number) {
 
 function shippingCostForState(state: string | undefined): number | null {
   if (!state) return null;
-  return state.trim().toUpperCase() === "NY" ? 2500 : 5000;
+  return state.trim().toUpperCase() === "NY" ? 2500 : null;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -364,8 +364,13 @@ export default function CheckoutPage() {
         .order("is_default", { ascending: false });
       const list = (data ?? []) as Address[];
       setAddresses(list);
-      const def = list.find((a) => a.is_default) ?? list[0];
-      if (def) setSelectedAddressId(def.id);
+      // Preserve the user's current selection if it still exists in the new list.
+      // Only fall back to the default when there's no valid selection.
+      setSelectedAddressId((prev) => {
+        if (prev && list.some((a) => a.id === prev)) return prev;
+        const def = list.find((a) => a.is_default) ?? list[0];
+        return def?.id ?? null;
+      });
     } catch {}
     setFetchingAddresses(false);
   }, [user]);
@@ -393,7 +398,7 @@ export default function CheckoutPage() {
   const subtotal = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
   const total = subtotal + (shippingCost ?? 0);
   const billToComplete = !!(billTo.full_name && billTo.email && billTo.line1 && billTo.city && billTo.state && billTo.zip);
-  const canPlace = !!selectedAddressId && items.length > 0 && billConfirmed;
+  const canPlace = !!selectedAddressId && items.length > 0 && billConfirmed && shippingCost !== null;
 
   const handleConfirmBilling = () => {
     if (!billToComplete) { setBillToError("Please fill in all required fields."); return; }
@@ -684,26 +689,49 @@ export default function CheckoutPage() {
                       </div>
                     ) : (
                       <div className="flex flex-col gap-3">
-                        {addresses.map((addr) => (
-                          <button key={addr.id} onClick={() => setSelectedAddressId(addr.id)}
-                            className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${selectedAddressId === addr.id ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]" : "border-gray-200 hover:border-gray-300"}`}>
-                            <div className="flex items-start gap-3">
-                              <div className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${selectedAddressId === addr.id ? "border-[#2C3A48] bg-[#2C3A48]" : "border-gray-300"}`}>
-                                {selectedAddressId === addr.id && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-0.5">
-                                  <span className="text-xs font-bold text-[#2C3A48] uppercase tracking-wide">{addr.label}</span>
-                                  {addr.is_default && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">Default</span>}
+                        {addresses.map((addr) => {
+                          const isSelected = selectedAddressId === addr.id;
+                          const isInvalid = isSelected && addr.state?.trim().toUpperCase() !== "NY";
+                          return (
+                            <div key={addr.id} className="flex flex-col gap-2">
+                              <button onClick={() => setSelectedAddressId(addr.id)}
+                                className={`w-full text-left rounded-2xl border-2 px-4 py-3.5 transition-all ${
+                                  isInvalid
+                                    ? "border-rose-400 bg-rose-50"
+                                    : isSelected
+                                    ? "border-[#2C3A48] bg-[#2C3A48]/[0.04]"
+                                    : "border-gray-200 hover:border-gray-300"
+                                }`}>
+                                <div className="flex items-start gap-3">
+                                  <div className={`w-4 h-4 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center ${
+                                    isInvalid
+                                      ? "border-rose-500 bg-rose-500"
+                                      : isSelected
+                                      ? "border-[#2C3A48] bg-[#2C3A48]"
+                                      : "border-gray-300"
+                                  }`}>
+                                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                      <span className={`text-xs font-bold uppercase tracking-wide ${isInvalid ? "text-rose-700" : "text-[#2C3A48]"}`}>{addr.label}</span>
+                                      {addr.is_default && <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500">Default</span>}
+                                    </div>
+                                    <p className={`text-sm font-semibold ${isInvalid ? "text-rose-800" : "text-gray-700"}`}>{addr.full_name}</p>
+                                    <p className={`text-xs mt-0.5 ${isInvalid ? "text-rose-600" : "text-gray-400"}`}>
+                                      {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} {addr.zip}
+                                    </p>
+                                  </div>
                                 </div>
-                                <p className="text-sm font-semibold text-gray-700">{addr.full_name}</p>
-                                <p className="text-xs text-gray-400 mt-0.5">
-                                  {addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} {addr.zip}
+                              </button>
+                              {isInvalid && (
+                                <p className="text-xs text-rose-600 font-medium px-1">
+                                  We currently only ship within New York State. Please choose a NY address to continue.
                                 </p>
-                              </div>
+                              )}
                             </div>
-                          </button>
-                        ))}
+                          );
+                        })}
                         {addresses.length === 0 && !showAddAddress && (
                           <div className="flex flex-col items-center gap-2 py-6 text-center">
                             <MapPin className="w-8 h-8 text-gray-200" strokeWidth={1.5} />
@@ -751,8 +779,8 @@ export default function CheckoutPage() {
                       <p className="font-bold mb-1">Flat Rate Shipping</p>
                       <p>All orders ship from <span className="font-semibold">Long Island City, NY 11101</span>.</p>
                       <div className="mt-2 flex flex-col gap-0.5">
-                        <p><span className="font-semibold">New York (NY):</span> $25.00 flat rate</p>
-                        <p><span className="font-semibold">New Jersey (NJ) &amp; other states:</span> $50.00 flat rate</p>
+                        <p><span className="font-semibold">New York (NY) only:</span> $25.00 flat rate</p>
+                        <p className="text-amber-700">We currently do not ship outside New York State.</p>
                       </div>
                     </div>
                   </div>
@@ -763,7 +791,7 @@ export default function CheckoutPage() {
                         Shipping to <span className="font-semibold text-[#2C3A48]">{selectedAddress.city}, {selectedAddress.state}</span>
                       </span>
                       <span className="text-sm font-bold text-[#2C3A48]">
-                        {shippingCost !== null ? formatPrice(shippingCost) : "—"}
+                        {shippingCost !== null ? formatPrice(shippingCost) : "Not available"}
                       </span>
                     </div>
                   )}
@@ -835,6 +863,8 @@ export default function CheckoutPage() {
                   <p className="mt-2 text-[10px] text-center text-gray-400">
                     {!selectedAddressId
                       ? "Select a shipping address to continue"
+                      : shippingCost === null
+                      ? "We only ship to New York addresses"
                       : "Add items to your cart to continue"}
                   </p>
                 )}
