@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingCart, Heart, Menu, User, MapPin, Package, HelpCircle, LogOut, ChevronRight, Info, Mail, LayoutGrid } from "lucide-react";
+import { ShoppingCart, Heart, Menu, User, MapPin, Package, HelpCircle, LogOut, ChevronRight, Info, Mail } from "lucide-react";
 import { useWishlist } from "@/lib/wishlist-store";
 import { useCart } from "@/lib/cart-store";
 import { useAuthModal } from "@/lib/auth-modal-store";
@@ -26,7 +26,10 @@ import {
   Sheet,
   SheetContent,
 } from "@/components/ui/sheet";
-import { useCategoriesModal } from "@/lib/categories-modal-store";
+import { useProducts } from "@/lib/use-products";
+import { useCategoryFilter } from "@/lib/category-filter-store";
+import { useProductModalOpen } from "@/lib/product-modal-store";
+import ShopSidebar from "@/components/layout/ShopSidebar";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 
@@ -162,27 +165,19 @@ export default function Navbar({
         </motion.div>
       )}
     </AnimatePresence>
-    {/* Mobile top bar: logo left + Profile right */}
-    <div className="lg:hidden sticky top-0 z-[60] w-full bg-white border-b border-[#e5e7eb]">
-      <div className="flex items-center justify-between h-14 px-4">
-        <Link href="/" aria-label="TheElevatorShop home">
-          <Image src="/logo.png" alt="The Elevator Shop" width={280} height={87} priority quality={100} sizes="140px" style={{ width: 140, height: "auto" }} />
-        </Link>
-        <button
-          onClick={() => { if (user) { setAccountInfoOpen(true); } else { openAuth("login"); } }}
-          aria-label={user ? "Account" : "Sign in"}
-          className="flex items-center justify-center w-9 h-9 rounded-full text-[#2C3A48] active:bg-orange-50 transition-colors"
-        >
-          {user ? (
-            <div className="w-8 h-8 rounded-full bg-[#E87B3A] flex items-center justify-center text-white text-sm font-bold">
-              {(user.user_metadata?.full_name as string | undefined)?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? "U"}
-            </div>
-          ) : (
-            <User className="w-5 h-5" />
-          )}
-        </button>
-      </div>
-    </div>
+    {/* Mobile top bar: hamburger + about + contact (left), logo (right) */}
+    <MobileTopBar
+      user={user}
+      onOpenAuth={openAuth}
+      onOpenContact={openContact}
+      onOpenAddresses={() => setAddressesOpen(true)}
+      onOpenHistory={() => setHistoryOpen(true)}
+      onOpenAccountInfo={() => setAccountInfoOpen(true)}
+      onSignOut={signOut}
+      authLabels={auth}
+      cartCount={cartCount}
+      wishlistCount={wishlistCount}
+    />
 
     <header className="hidden lg:block sticky top-0 z-50 w-full border-b border-[#e5e7eb] bg-white shadow-sm">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-4 md:px-6 relative">
@@ -387,19 +382,6 @@ export default function Navbar({
       </div>
     </header>
 
-    {/* Mobile bottom nav (Instagram-style fixed footer) */}
-    <MobileBottomNav
-      cartCount={cartCount}
-      wishlistCount={wishlistCount}
-      user={user}
-      onOpenAuth={openAuth}
-      onOpenContact={openContact}
-      onOpenAccountInfo={() => setAccountInfoOpen(true)}
-      onOpenAddresses={() => setAddressesOpen(true)}
-      onOpenHistory={() => setHistoryOpen(true)}
-      onSignOut={signOut}
-      authLabels={auth}
-    />
     <AccountModal open={accountInfoOpen} onClose={() => setAccountInfoOpen(false)} />
     <AddressesModal open={addressesOpen} onClose={() => setAddressesOpen(false)} />
     <PurchaseHistoryModal open={historyOpen} onClose={() => setHistoryOpen(false)} />
@@ -408,10 +390,11 @@ export default function Navbar({
 }
 
 // ─────────────────────────────────────────────────────────────────
-// Mobile bottom navigation (Instagram-style fixed footer)
+// Mobile top bar: hamburger + about/contact icons (left), logo (right)
+// Hamburger sheet contains: Profile section + Cart/Wishlist + Categories
 // ─────────────────────────────────────────────────────────────────
 
-interface MobileBottomNavProps {
+interface MobileTopBarProps {
   cartCount: number;
   wishlistCount: number;
   user: SupabaseUser | null;
@@ -424,7 +407,7 @@ interface MobileBottomNavProps {
   authLabels: { login: { title: string; url: string }; signup: { title: string; url: string } };
 }
 
-function MobileBottomNav({
+function MobileTopBar({
   cartCount,
   wishlistCount,
   user,
@@ -435,135 +418,167 @@ function MobileBottomNav({
   onOpenHistory,
   onSignOut,
   authLabels,
-}: MobileBottomNavProps) {
+}: MobileTopBarProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
-  const categoriesOpen = useCategoriesModal((s) => s.open);
-  const toggleCategories = useCategoriesModal((s) => s.toggle);
+  const { categories } = useProducts();
+  const selectedCategory = useCategoryFilter((s) => s.selected);
+  const setSelectedCategory = useCategoryFilter((s) => s.setSelected);
+  const productModalOpen = useProductModalOpen((s) => s.open);
+  const contactModalOpen = useContactModal((s) => s.open);
+  const hideTopBar = productModalOpen || contactModalOpen;
+
+  const handleSelectCategory = (id: string) => {
+    setSelectedCategory(id);
+    setMenuOpen(false);
+  };
 
   return (
     <>
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-white border-t border-[#e5e7eb] shadow-[0_-2px_8px_rgba(0,0,0,0.04)]">
-        <div className="grid grid-cols-4 h-[56px]">
-          {/* Categories */}
-          <motion.button
-            onClick={toggleCategories}
-            whileTap={{ scale: 0.88 }}
-            aria-label="Categories"
-            aria-pressed={categoriesOpen}
-            className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${categoriesOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
-          >
-            <LayoutGrid className="w-[18px] h-[18px]" />
-            <span className="text-[9px] font-medium leading-none">Categories</span>
-          </motion.button>
-
-          {/* Cart */}
-          <Link
-            href="/cart"
-            aria-label="Cart"
-            className="flex flex-col items-center justify-center gap-0.5 text-[#2C3A48] active:bg-orange-50 transition-colors relative"
-          >
-            <div className="relative">
-              <ShoppingCart className="w-[18px] h-[18px]" />
+      <motion.div
+        animate={{ y: hideTopBar ? -56 : 0 }}
+        transition={{ type: "tween", duration: 0.25, ease: "easeInOut" }}
+        className="lg:hidden sticky top-0 z-[60] w-full bg-white border-b border-[#e5e7eb]"
+      >
+        <div className="flex items-center justify-between h-14 px-3">
+          <Link href="/" aria-label="TheElevatorShop home">
+            <Image src="/logo.png" alt="The Elevator Shop" width={280} height={87} priority quality={100} sizes="130px" style={{ width: 130, height: "auto" }} />
+          </Link>
+          <div className="flex items-center gap-1">
+            <Link
+              href="/cart"
+              aria-label="Cart"
+              className="relative flex items-center justify-center w-10 h-10 rounded-lg text-[#2C3A48] active:bg-orange-50 transition-colors"
+            >
+              <ShoppingCart className="w-5 h-5" />
               {cartCount > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[9px] font-bold text-white">
+                <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[9px] font-bold text-white">
                   {cartCount}
                 </span>
               )}
-            </div>
-            <span className="text-[9px] font-medium leading-none">Cart</span>
-          </Link>
-
-          {/* Wishlist */}
-          <Link
-            href="/wishlist"
-            aria-label="Wishlist"
-            className="flex flex-col items-center justify-center gap-0.5 text-[#2C3A48] active:bg-orange-50 transition-colors relative"
-          >
-            <div className="relative">
-              <Heart className="w-[18px] h-[18px]" />
+            </Link>
+            <Link
+              href="/wishlist"
+              aria-label="Wishlist"
+              className="relative flex items-center justify-center w-10 h-10 rounded-lg text-[#2C3A48] active:bg-orange-50 transition-colors"
+            >
+              <Heart className="w-5 h-5" />
               {wishlistCount > 0 && (
-                <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[9px] font-bold text-white">
+                <span className="absolute top-1 right-1 flex h-4 min-w-4 px-1 items-center justify-center rounded-full bg-[#E87B3A] text-[9px] font-bold text-white">
                   {wishlistCount}
                 </span>
               )}
-            </div>
-            <span className="text-[9px] font-medium leading-none">Wishlist</span>
-          </Link>
-
-          {/* More (hamburger) */}
-          <motion.button
-            onClick={() => setMenuOpen((v) => !v)}
-            whileTap={{ scale: 0.88 }}
-            aria-label="More menu"
-            aria-pressed={menuOpen}
-            className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${menuOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
-          >
-            <Menu className="w-[18px] h-[18px]" />
-            <span className="text-[9px] font-medium leading-none">More</span>
-          </motion.button>
-        </div>
-      </nav>
-
-      {/* More menu sheet */}
-      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent side="right" hideClose className="w-56 overflow-y-auto bg-white !top-14 !bottom-[56px] !h-auto pt-6">
-          <nav className="flex flex-col gap-1">
-            <Link
-              href="/about"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors"
-            >
-              <Info className="w-4 h-4 text-gray-400" />
-              About
             </Link>
-            <button
-              onClick={() => { setMenuOpen(false); onOpenContact(); }}
-              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
+            <motion.button
+              onClick={() => setMenuOpen((v) => !v)}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Open menu"
+              aria-pressed={menuOpen}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-colors ${menuOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
             >
-              <Mail className="w-4 h-4 text-gray-400" />
-              Contact
-            </button>
-          </nav>
+              <Menu className="w-5 h-5" />
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
 
-          {user ? (
-            <div className="mt-6 border-t border-[#e5e7eb] pt-4 flex flex-col gap-1">
+      {/* Hamburger sheet */}
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="right" hideClose className="w-72 overflow-y-auto bg-white !top-14 !bottom-0 !h-auto pt-5 px-4">
+          {/* 1. Profile info (logged in only) — just the card, no sub-buttons here */}
+          {user && (
+            <div className="pb-4 border-b border-gray-100">
               <button
-                onClick={() => { setMenuOpen(false); onOpenAddresses(); }}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
+                onClick={() => { setMenuOpen(false); onOpenAccountInfo(); }}
+                className="w-full flex items-center gap-3 text-left group"
               >
-                <MapPin className="w-4 h-4 text-gray-400" />
-                Addresses
-              </button>
-              <button
-                onClick={() => { setMenuOpen(false); onOpenHistory(); }}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
-              >
-                <Package className="w-4 h-4 text-gray-400" />
-                Purchase History
-              </button>
-              <button
-                onClick={() => { setMenuOpen(false); onOpenContact(); }}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
-              >
-                <HelpCircle className="w-4 h-4 text-gray-400" />
-                Get Help
-              </button>
-              <button
-                onClick={() => { setMenuOpen(false); onSignOut(); }}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors text-left"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
+                <div className="w-10 h-10 rounded-full bg-[#E87B3A] flex items-center justify-center text-white text-sm font-bold shrink-0">
+                  {(user.user_metadata?.full_name as string | undefined)?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? "U"}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-[#2C3A48] truncate group-hover:text-[#E87B3A] transition-colors">
+                    {(user.user_metadata?.full_name as string | undefined) ?? "My Account"}
+                  </p>
+                  <p className="text-[11px] text-gray-400 truncate">{user.email}</p>
+                </div>
+                <ChevronRight className="w-3.5 h-3.5 text-gray-300 shrink-0" />
               </button>
             </div>
-          ) : (
-            <div className="mt-6 border-t border-[#e5e7eb] pt-6 flex flex-col gap-2">
+          )}
+
+          {/* Sign in / Sign up (logged out only) */}
+          {!user && (
+            <div className="pb-4 border-b border-gray-100 flex flex-col gap-2">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">My Account</p>
               <Button variant="outline" onClick={() => { setMenuOpen(false); onOpenAuth("login"); }} className="w-full border-[#2C3A48] text-[#2C3A48] hover:bg-[#2C3A48] hover:text-white">
                 {authLabels.login.title}
               </Button>
               <Button onClick={() => { setMenuOpen(false); onOpenAuth("register"); }} className="w-full bg-[#E87B3A] text-white hover:bg-[#d06b2a]">
                 {authLabels.signup.title}
               </Button>
+            </div>
+          )}
+
+          {/* 2. Categories tree */}
+          <div className="py-3 border-b border-gray-100">
+            <ShopSidebar
+              selected={selectedCategory}
+              onSelect={handleSelectCategory}
+              categories={categories}
+            />
+          </div>
+
+          {/* 3. Account options (Addresses, Purchase History, Get Help) — logged in only */}
+          {user && (
+            <div className="py-3 border-b border-gray-100 flex flex-col gap-0.5">
+              <button
+                onClick={() => { setMenuOpen(false); onOpenAddresses(); }}
+                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
+              >
+                <MapPin className="w-4 h-4 text-gray-400" /> Addresses
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); onOpenHistory(); }}
+                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
+              >
+                <Package className="w-4 h-4 text-gray-400" /> Purchase History
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); onOpenContact(); }}
+                className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
+              >
+                <HelpCircle className="w-4 h-4 text-gray-400" /> Get Help
+              </button>
+            </div>
+          )}
+
+          {/* 4. About + Contact */}
+          <div className="py-3 flex flex-col gap-0.5">
+            <Link
+              href="/about"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors"
+            >
+              <Info className="w-4 h-4 text-gray-400" />
+              About
+            </Link>
+            <button
+              onClick={() => { setMenuOpen(false); onOpenContact(); }}
+              className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
+            >
+              <Mail className="w-4 h-4 text-gray-400" />
+              Contact
+            </button>
+          </div>
+
+          {/* 5. Sign Out (logged in only) */}
+          {user && (
+            <div className="border-t border-gray-100 pt-3 pb-2">
+              <button
+                onClick={() => { setMenuOpen(false); onSignOut(); }}
+                className="w-full flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-rose-500 hover:bg-rose-50 transition-colors text-left"
+              >
+                <LogOut className="w-4 h-4" /> Sign Out
+              </button>
             </div>
           )}
         </SheetContent>

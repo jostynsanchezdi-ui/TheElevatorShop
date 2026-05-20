@@ -1,26 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { Heart, Package, ShoppingCart, Trash2, ArrowLeft } from "lucide-react";
+import { Heart, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import ProductCard from "@/components/products/ProductCard";
 import ProductModal from "@/components/products/ProductModal";
 import { useWishlist } from "@/lib/wishlist-store";
 import type { MockProduct } from "@/lib/mock-data";
 
-function formatPrice(cents: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(cents / 100);
-}
-
 export default function WishlistPage() {
-  const { items, remove } = useWishlist();
+  const { items } = useWishlist();
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null);
 
   return (
@@ -68,7 +60,7 @@ export default function WishlistPage() {
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               <AnimatePresence>
                 {items.map((product) => (
                   <motion.div
@@ -78,68 +70,8 @@ export default function WishlistPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.2 }}
-                    className="bg-white border border-gray-100 rounded-2xl overflow-hidden hover:shadow-md transition-shadow flex flex-col"
                   >
-                    {/* Image */}
-                    <button
-                      onClick={() => setSelectedProduct(product)}
-                      className="relative aspect-square bg-gray-50 w-full"
-                    >
-                      {product.image ? (
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-14 h-14 text-gray-200" strokeWidth={1} />
-                        </div>
-                      )}
-                    </button>
-
-                    {/* Info */}
-                    <div className="p-4 flex flex-col flex-1 gap-3">
-                      <div className="flex-1">
-                        <p className="text-[10px] font-semibold text-gray-400 tracking-widest uppercase mb-1">
-                          {product.category}
-                        </p>
-                        <h3
-                          className="text-sm font-semibold text-[#2C3A48] line-clamp-2 cursor-pointer hover:text-[#E87B3A] transition-colors"
-                          onClick={() => setSelectedProduct(product)}
-                        >
-                          {product.name}
-                        </h3>
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <span className="text-base font-bold text-[#2C3A48]">
-                          {formatPrice(product.price)}
-                        </span>
-                        <button
-                          onClick={() => remove(product.id)}
-                          aria-label="Remove from wishlist"
-                          className="p-1.5 rounded-lg text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                          <ShoppingCart className="w-3.5 h-3.5" />
-                          Add to Cart
-                        </button>
-                        <button
-                          onClick={() => setSelectedProduct(product)}
-                          className="flex-1 px-3 py-2 text-xs font-semibold bg-[#2C3A48] text-white rounded-lg hover:bg-[#1e2a35] transition-colors"
-                        >
-                          View
-                        </button>
-                      </div>
-                    </div>
+                    <ProductCard product={product} onClick={() => setSelectedProduct(product)} />
                   </motion.div>
                 ))}
               </AnimatePresence>

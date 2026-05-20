@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useCart } from "@/lib/cart-store";
+import { calcTaxCents, NY_TAX_LABEL } from "@/lib/tax";
 import { useProducts } from "@/lib/use-products";
 import ProductCard from "@/components/products/ProductCard";
 import ProductModal from "@/components/products/ProductModal";
@@ -49,7 +50,9 @@ export default function CartPage() {
 
   const subtotal = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
   const discount = discountApplied ? Math.round(subtotal * DISCOUNT_RATE) : 0;
-  const total = subtotal - discount + (items.length > 0 ? DELIVERY_FEE : 0);
+  const taxableSubtotal = Math.max(0, subtotal - discount);
+  const tax = items.length > 0 ? calcTaxCents(taxableSubtotal) : 0;
+  const total = taxableSubtotal + tax + (items.length > 0 ? DELIVERY_FEE : 0);
 
   const handleApplyVoucher = () => {
     if (voucher.trim().toUpperCase() === "ELEVATOR10") setDiscountApplied(true);
@@ -210,6 +213,10 @@ export default function CartPage() {
                         <span className="font-semibold text-rose-500">−{formatPrice(discount)}</span>
                       </div>
                     )}
+                    <div className="flex justify-between text-gray-500">
+                      <span>{NY_TAX_LABEL}</span>
+                      <span className="font-semibold text-[#2C3A48]">{formatPrice(tax)}</span>
+                    </div>
                     <div className="flex justify-between text-gray-500">
                       <span>Delivery fee</span>
                       <span className="font-semibold text-[#2C3A48]">{formatPrice(DELIVERY_FEE)}</span>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { calcTaxCents, NY_TAX_LABEL } from "@/lib/tax";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,6 +21,8 @@ interface Address {
   id: string;
   label: string;
   full_name: string;
+  company?: string;
+  phone?: string;
   line1: string;
   line2?: string;
   city: string;
@@ -56,7 +59,7 @@ function InlineAddressForm({
   hideCancel?: boolean;
 }) {
   const [form, setForm] = useState({
-    label: "Home", full_name: "", line1: "", line2: "", city: "", state: "", zip: "",
+    label: "Home", full_name: "", company: "", phone: "", line1: "", line2: "", city: "", state: "", zip: "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -102,7 +105,8 @@ function InlineAddressForm({
         setError(err.message || "Could not save address. Please try again.");
         return;
       }
-      onSaved(data as Address);
+      // Augment with company/phone (not persisted to DB; carried in-session for the order)
+      onSaved({ ...(data as Address), company: form.company || undefined, phone: form.phone || undefined });
       return;
     }
 
@@ -135,7 +139,14 @@ function InlineAddressForm({
           </div>
         )}
 
-        <input placeholder="Full Name *" value={form.full_name} onChange={(e) => set("full_name", e.target.value)}
+        <div className="grid grid-cols-2 gap-2">
+          <input placeholder="Full Name *" value={form.full_name} onChange={(e) => set("full_name", e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
+          <input placeholder="Company (optional)" value={form.company} onChange={(e) => set("company", e.target.value)}
+            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
+        </div>
+
+        <input placeholder="Phone (optional)" type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)}
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#2C3A48]/20 focus:border-[#2C3A48] transition" />
 
         {/* Street — fills city, state, zip on selection */}
@@ -350,6 +361,7 @@ export default function CheckoutPage() {
   const [placing, setPlacing] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [useShippingAsBilling, setUseShippingAsBilling] = useState(false);
 
   const isGuest = !loading && !user;
 
@@ -395,8 +407,51 @@ export default function CheckoutPage() {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
   const shippingCost = shippingCostForState(selectedAddress?.state);
+
+  // Sync billing fields with shipping address when "use as billing" is on.
+  // Only clear the fields when the user actively toggles the checkbox OFF
+  // (i.e., transition from true → false), so we don't wipe out data the user typed manually on mount.
+  const prevUseShippingAsBilling = useRef(useShippingAsBilling);
+  useEffect(() => {
+    const prev = prevUseShippingAsBilling.current;
+    prevUseShippingAsBilling.current = useShippingAsBilling;
+
+    if (useShippingAsBilling && selectedAddress) {
+      setBillTo((b) => ({
+        ...b,
+        full_name: selectedAddress.full_name,
+        company: selectedAddress.company ?? "",
+        phone: selectedAddress.phone ?? "",
+        line1: selectedAddress.line1,
+        line2: selectedAddress.line2 ?? "",
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        zip: selectedAddress.zip,
+      }));
+      // Force remount so Autocomplete inputs pick up the new defaultValue
+      setBillStreetKey((k) => k + 1);
+      setBillResetKey((k) => k + 1);
+    } else if (prev && !useShippingAsBilling) {
+      // User just unchecked the checkbox — wipe the synced data
+      setBillTo((b) => ({
+        ...b,
+        full_name: "",
+        company: "",
+        phone: "",
+        line1: "",
+        line2: "",
+        city: "",
+        state: "",
+        zip: "",
+      }));
+      // Force remount of Autocomplete inputs so their displayed values clear too
+      setBillStreetKey((k) => k + 1);
+      setBillResetKey((k) => k + 1);
+    }
+  }, [useShippingAsBilling, selectedAddress]);
   const subtotal = items.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
-  const total = subtotal + (shippingCost ?? 0);
+  const tax = calcTaxCents(subtotal);
+  const total = subtotal + tax + (shippingCost ?? 0);
   const billToComplete = !!(billTo.full_name && billTo.email && billTo.line1 && billTo.city && billTo.state && billTo.zip);
   const canPlace = !!selectedAddressId && items.length > 0 && billConfirmed && shippingCost !== null;
 
@@ -429,6 +484,7 @@ export default function CheckoutPage() {
           quantity: i.quantity,
         })),
         subtotal,
+        tax,
         shipping_cost: shippingCost ?? 0,
         total,
         shipping_address: {
@@ -484,14 +540,27 @@ export default function CheckoutPage() {
             {/* ── Left column ── */}
             <div className="flex-1 min-w-0 flex flex-col gap-6">
 
-              {/* Step 1: Billing Address */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              {/* Step 2: Billing Address (visually second via order-2) */}
+              <div className="order-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
+                  <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
                   <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-gray-400" /> Billing Address
                   </h2>
                 </div>
+
+                {/* Use shipping as billing checkbox */}
+                {selectedAddress && !billConfirmed && (
+                  <label className="flex items-center gap-2.5 mb-4 px-3 py-2.5 rounded-xl bg-[#2C3A48]/[0.04] border border-[#2C3A48]/10 cursor-pointer hover:bg-[#2C3A48]/[0.07] transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={useShippingAsBilling}
+                      onChange={(e) => setUseShippingAsBilling(e.target.checked)}
+                      className="w-4 h-4 rounded border-gray-300 text-[#E87B3A] focus:ring-[#E87B3A]/30 cursor-pointer"
+                    />
+                    <span className="text-sm font-medium text-[#2C3A48]">Use shipping address as billing address</span>
+                  </label>
+                )}
 
                 <AnimatePresence mode="wait">
                   {billConfirmed ? (
@@ -630,10 +699,10 @@ export default function CheckoutPage() {
                 </AnimatePresence>
               </div>
 
-              {/* Step 2: Shipping Address */}
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              {/* Step 1: Shipping Address (visually first via order-1) */}
+              <div className="order-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
+                  <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
                   <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
                     <MapPin className="w-4 h-4 text-gray-400" /> Shipping Address
                   </h2>
@@ -763,8 +832,8 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              {/* Step 3: Shipping Info */}
-              <div className="relative z-10 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+              {/* Step 3: Shipping Info (stays last via order-3) */}
+              <div className="order-3 relative z-10 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-7 h-7 rounded-full bg-[#2C3A48] flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
                   <h2 className="text-base font-bold text-[#2C3A48] flex items-center gap-2">
@@ -832,6 +901,10 @@ export default function CheckoutPage() {
                   <div className="flex justify-between text-gray-500">
                     <span>Subtotal</span>
                     <span className="font-semibold text-[#2C3A48]">{formatPrice(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-500">
+                    <span>{NY_TAX_LABEL}</span>
+                    <span className="font-semibold text-[#2C3A48]">{formatPrice(tax)}</span>
                   </div>
                   <div className="flex justify-between text-gray-500">
                     <span>Shipping</span>

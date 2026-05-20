@@ -20,6 +20,7 @@ import type { MockProduct } from "@/lib/mock-data";
 import { useProducts } from "@/lib/use-products";
 import { useWishlist } from "@/lib/wishlist-store";
 import { useCart } from "@/lib/cart-store";
+import { useProductModalOpen } from "@/lib/product-modal-store";
 
 const COLOR_OPTIONS = [
   { hex: "#E87B3A", label: "Orange" },
@@ -153,15 +154,15 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
 
   return (
     <div
-      className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto pointer-events-auto"
+      className="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col pointer-events-auto"
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Wishlist button */}
+      {/* Wishlist button — fixed to modal, always visible */}
       <button
         onClick={() => toggle(product)}
         aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
         aria-pressed={wishlisted}
-        className="absolute top-4 right-14 z-10 p-1.5 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 hover:bg-rose-50"
+        className="absolute top-4 right-14 z-20 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 hover:bg-rose-50"
       >
         <Heart
           className={clsx(
@@ -171,16 +172,17 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
         />
       </button>
 
-      {/* Close button */}
+      {/* Close button — fixed to modal, always visible */}
       <button
         onClick={onClose}
         aria-label="Close product detail"
-        className="absolute top-4 right-4 z-10 p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E87B3A]"
+        className="absolute top-4 right-4 z-20 p-1.5 rounded-full bg-white/90 backdrop-blur-sm shadow-sm text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E87B3A]"
       >
         <X className="w-5 h-5" />
       </button>
 
-      {/* Content */}
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto">
       <div className="flex flex-col sm:flex-row gap-6 p-6">
         {/* ── Left: image + thumbnails ── */}
         <div className="flex flex-col gap-3 sm:w-52 shrink-0">
@@ -319,6 +321,7 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
           )}
         </div>
       </div>
+      </div>{/* end scrollable */}
     </div>
   );
 }
@@ -336,6 +339,14 @@ export default function ProductModal({
   onClose,
   onSelectRelated,
 }: ProductModalProps) {
+  const setProductModalOpen = useProductModalOpen((s) => s.setOpen);
+
+  // Notify global store so the mobile top bar can hide while open
+  useEffect(() => {
+    setProductModalOpen(!!product);
+    return () => setProductModalOpen(false);
+  }, [product, setProductModalOpen]);
+
   // Escape key handler
   useEffect(() => {
     if (!product) return;

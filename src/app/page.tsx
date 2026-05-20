@@ -2,7 +2,6 @@ import Header from "@/components/layout/Header";
 import HeroSection from "@/components/layout/HeroSection";
 import ProductsSection from "@/components/products/ProductsSection";
 import RecommendationsSection from "@/components/products/RecommendationsSection";
-import CTASection from "@/components/layout/CTASection";
 import Footer from "@/components/layout/Footer";
 import WelcomeModal from "@/components/layout/WelcomeModal";
 
@@ -17,7 +16,6 @@ export default function Home() {
         </div>
         <ProductsSection />
         <RecommendationsSection />
-        <CTASection />
       </main>
       <Footer />
     </>

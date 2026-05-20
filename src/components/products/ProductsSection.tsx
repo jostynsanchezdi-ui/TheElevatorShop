@@ -7,9 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import ProductCard from "./ProductCard";
 import ProductModal from "./ProductModal";
 import ShopSidebar from "@/components/layout/ShopSidebar";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useProducts } from "@/lib/use-products";
-import { useCategoriesModal } from "@/lib/categories-modal-store";
+import { useCategoryFilter } from "@/lib/category-filter-store";
 import type { MockProduct } from "@/lib/mock-data";
 
 const PAGE_SIZE = 6;
@@ -17,13 +16,12 @@ const MAX_SUGGESTIONS = 6;
 
 export default function ProductsSection() {
   const { products, categories } = useProducts();
-  const [category, setCategory] = useState("all");
+  const category = useCategoryFilter((s) => s.selected);
+  const setCategoryStore = useCategoryFilter((s) => s.setSelected);
   const [search, setSearch] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null);
-  const mobileCategoriesOpen = useCategoriesModal((s) => s.open);
-  const setMobileCategoriesOpen = useCategoriesModal((s) => s.setOpen);
   const searchRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click
@@ -70,9 +68,8 @@ export default function ProductsSection() {
   );
 
   const handleCategory = (id: string) => {
-    setCategory(id);
+    setCategoryStore(id);
     setPage(1);
-    setMobileCategoriesOpen(false);
   };
 
   // Resolve breadcrumb labels for the current selection
@@ -100,13 +97,6 @@ export default function ProductsSection() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16 lg:py-16">
-      {/* Mobile categories sheet (triggered from bottom nav) */}
-      <Sheet open={mobileCategoriesOpen} onOpenChange={setMobileCategoriesOpen}>
-        <SheetContent side="left" hideClose className="w-64 overflow-y-auto bg-white !top-14 !bottom-[56px] !h-auto pt-6">
-          <ShopSidebar selected={category} onSelect={handleCategory} categories={categories} defaultExpandAll />
-        </SheetContent>
-      </Sheet>
-
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Desktop sidebar */}
         <div className="hidden lg:block">

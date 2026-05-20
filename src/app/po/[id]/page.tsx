@@ -371,6 +371,10 @@ export default function POPage() {
                   <span style={{ fontSize: 13, color: "#6b7280" }}>Subtotal</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "#1a2535" }}>{formatPrice(order.subtotal)}</span>
                 </div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 9 }}>
+                  <span style={{ fontSize: 13, color: "#6b7280" }}>NY Sales Tax (8.875%)</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "#1a2535" }}>{formatPrice(Math.round(order.subtotal * 0.08875))}</span>
+                </div>
                 <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: 12, borderBottom: "1px solid #e5e7eb", marginBottom: 12 }}>
                   <span style={{ fontSize: 13, color: "#6b7280" }}>
                     Shipping — {addr.state === "NY" ? "NY flat rate" : "flat rate"}

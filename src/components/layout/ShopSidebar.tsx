@@ -49,7 +49,7 @@ export default function ShopSidebar({ selected, onSelect, categories = [], defau
 
   return (
     <aside className="w-full lg:w-56 shrink-0">
-      {!defaultExpandAll && <p className="text-sm font-bold text-gray-900 mb-3">Category</p>}
+      <p className="text-sm font-bold text-gray-900 mb-3">Categories</p>
       <ul className="space-y-0.5">
         {items.map((cat) => {
           const isSelected = selected === cat.id;

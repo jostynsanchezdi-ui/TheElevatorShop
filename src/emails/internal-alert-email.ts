@@ -12,6 +12,7 @@ interface InternalAlertData {
   customerEmail: string;
   items: OrderItem[];
   subtotal: number;
+  tax: number;
   shippingCost: number;
   total: number;
   shippingState: string;
@@ -127,6 +128,10 @@ export function renderInternalAlertEmail(d: InternalAlertData): string {
               <tr>
                 <td style="padding:5px 4px;text-align:right;font-size:13px;color:#6b7280;">Subtotal</td>
                 <td width="110" style="padding:5px 4px;text-align:right;font-size:13px;font-weight:600;color:#1a2535;">${fmt(d.subtotal)}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 4px;text-align:right;font-size:13px;color:#6b7280;">NY Sales Tax <span style="color:#9ca3af;">(8.875%)</span></td>
+                <td width="110" style="padding:5px 4px;text-align:right;font-size:13px;font-weight:600;color:#1a2535;">${fmt(d.tax)}</td>
               </tr>
               <tr>
                 <td style="padding:5px 4px;text-align:right;font-size:13px;color:#6b7280;">Shipping <span style="color:#9ca3af;">(${d.shippingCity}, ${d.shippingState})</span></td>
