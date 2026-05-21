@@ -420,6 +420,7 @@ function MobileTopBar({
   authLabels,
 }: MobileTopBarProps) {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
   const { categories } = useProducts();
   const selectedCategory = useCategoryFilter((s) => s.selected);
   const setSelectedCategory = useCategoryFilter((s) => s.setSelected);
@@ -440,9 +441,20 @@ function MobileTopBar({
         className="lg:hidden sticky top-0 z-[60] w-full bg-white border-b border-[#e5e7eb]"
       >
         <div className="flex items-center justify-between h-14 px-3">
-          <Link href="/" aria-label="TheElevatorShop home">
-            <Image src="/logo.png" alt="The Elevator Shop" width={280} height={87} priority quality={100} sizes="130px" style={{ width: 130, height: "auto" }} />
-          </Link>
+          <div className="flex items-center gap-2">
+            <motion.button
+              onClick={() => setMenuOpen((v) => !v)}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Open categories menu"
+              aria-pressed={menuOpen}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-colors ${menuOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
+            >
+              <Menu className="w-5 h-5" />
+            </motion.button>
+            <Link href="/" aria-label="TheElevatorShop home">
+              <Image src="/logo.png" alt="The Elevator Shop" width={280} height={87} priority quality={100} sizes="120px" style={{ width: 120, height: "auto" }} />
+            </Link>
+          </div>
           <div className="flex items-center gap-1">
             <Link
               href="/cart"
@@ -469,26 +481,43 @@ function MobileTopBar({
               )}
             </Link>
             <motion.button
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => setProfileOpen((v) => !v)}
               whileTap={{ scale: 0.9 }}
-              aria-label="Open menu"
-              aria-pressed={menuOpen}
-              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-colors ${menuOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
+              aria-label={user ? "Account menu" : "Sign in"}
+              aria-pressed={profileOpen}
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-colors ${profileOpen ? "text-[#E87B3A] bg-orange-50" : "text-[#2C3A48] active:bg-orange-50"}`}
             >
-              <Menu className="w-5 h-5" />
+              {user ? (
+                <div className="w-8 h-8 rounded-full bg-[#E87B3A] flex items-center justify-center text-white text-xs font-bold">
+                  {(user.user_metadata?.full_name as string | undefined)?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? "U"}
+                </div>
+              ) : (
+                <User className="w-5 h-5" />
+              )}
             </motion.button>
           </div>
         </div>
       </motion.div>
 
-      {/* Hamburger sheet */}
+      {/* Hamburger sheet (left) — Categories only */}
       <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="left" hideClose className="w-72 overflow-y-auto bg-white !top-14 !bottom-0 !h-auto pt-5 px-4">
+          <ShopSidebar
+            selected={selectedCategory}
+            onSelect={handleSelectCategory}
+            categories={categories}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* Profile sheet (right) — everything else */}
+      <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
         <SheetContent side="right" hideClose className="w-72 overflow-y-auto bg-white !top-14 !bottom-0 !h-auto pt-5 px-4">
-          {/* 1. Profile info (logged in only) — just the card, no sub-buttons here */}
+          {/* Profile card (logged in only) */}
           {user && (
             <div className="pb-4 border-b border-gray-100">
               <button
-                onClick={() => { setMenuOpen(false); onOpenAccountInfo(); }}
+                onClick={() => { setProfileOpen(false); onOpenAccountInfo(); }}
                 className="w-full flex items-center gap-3 text-left group"
               >
                 <div className="w-10 h-10 rounded-full bg-[#E87B3A] flex items-center justify-center text-white text-sm font-bold shrink-0">
@@ -509,41 +538,32 @@ function MobileTopBar({
           {!user && (
             <div className="pb-4 border-b border-gray-100 flex flex-col gap-2">
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-1">My Account</p>
-              <Button variant="outline" onClick={() => { setMenuOpen(false); onOpenAuth("login"); }} className="w-full border-[#2C3A48] text-[#2C3A48] hover:bg-[#2C3A48] hover:text-white">
+              <Button variant="outline" onClick={() => { setProfileOpen(false); onOpenAuth("login"); }} className="w-full border-[#2C3A48] text-[#2C3A48] hover:bg-[#2C3A48] hover:text-white">
                 {authLabels.login.title}
               </Button>
-              <Button onClick={() => { setMenuOpen(false); onOpenAuth("register"); }} className="w-full bg-[#E87B3A] text-white hover:bg-[#d06b2a]">
+              <Button onClick={() => { setProfileOpen(false); onOpenAuth("register"); }} className="w-full bg-[#E87B3A] text-white hover:bg-[#d06b2a]">
                 {authLabels.signup.title}
               </Button>
             </div>
           )}
 
-          {/* 2. Categories tree */}
-          <div className="py-3 border-b border-gray-100">
-            <ShopSidebar
-              selected={selectedCategory}
-              onSelect={handleSelectCategory}
-              categories={categories}
-            />
-          </div>
-
-          {/* 3. Account options (Addresses, Purchase History, Get Help) — logged in only */}
+          {/* Account options — logged in only */}
           {user && (
             <div className="py-3 border-b border-gray-100 flex flex-col gap-0.5">
               <button
-                onClick={() => { setMenuOpen(false); onOpenAddresses(); }}
+                onClick={() => { setProfileOpen(false); onOpenAddresses(); }}
                 className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
               >
                 <MapPin className="w-4 h-4 text-gray-400" /> Addresses
               </button>
               <button
-                onClick={() => { setMenuOpen(false); onOpenHistory(); }}
+                onClick={() => { setProfileOpen(false); onOpenHistory(); }}
                 className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
               >
                 <Package className="w-4 h-4 text-gray-400" /> Purchase History
               </button>
               <button
-                onClick={() => { setMenuOpen(false); onOpenContact(); }}
+                onClick={() => { setProfileOpen(false); onOpenContact(); }}
                 className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
               >
                 <HelpCircle className="w-4 h-4 text-gray-400" /> Get Help
@@ -551,18 +571,18 @@ function MobileTopBar({
             </div>
           )}
 
-          {/* 4. About + Contact */}
+          {/* About + Contact */}
           <div className="py-3 flex flex-col gap-0.5">
             <Link
               href="/about"
-              onClick={() => setMenuOpen(false)}
+              onClick={() => setProfileOpen(false)}
               className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors"
             >
               <Info className="w-4 h-4 text-gray-400" />
               About
             </Link>
             <button
-              onClick={() => { setMenuOpen(false); onOpenContact(); }}
+              onClick={() => { setProfileOpen(false); onOpenContact(); }}
               className="flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-[#2C3A48] hover:bg-orange-50 hover:text-[#E87B3A] transition-colors text-left"
             >
               <Mail className="w-4 h-4 text-gray-400" />
@@ -570,11 +590,11 @@ function MobileTopBar({
             </button>
           </div>
 
-          {/* 5. Sign Out (logged in only) */}
+          {/* Sign Out (logged in only) */}
           {user && (
             <div className="border-t border-gray-100 pt-3 pb-2">
               <button
-                onClick={() => { setMenuOpen(false); onSignOut(); }}
+                onClick={() => { setProfileOpen(false); onSignOut(); }}
                 className="w-full flex items-center gap-3 rounded-lg px-2 py-2 text-sm text-rose-500 hover:bg-rose-50 transition-colors text-left"
               >
                 <LogOut className="w-4 h-4" /> Sign Out
