@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, Trash2, Plus, Minus, AlertCircle, Tag, Package, ChevronLeft, ChevronRight } from "lucide-react";
@@ -16,6 +16,43 @@ import type { MockProduct } from "@/lib/mock-data";
 
 const DELIVERY_FEE = 5000;
 const DISCOUNT_RATE = 0.10;
+
+interface CartQtyInputProps {
+  product: MockProduct;
+  quantity: number;
+  onChange: (id: string, qty: number) => void;
+}
+
+function CartQtyInput({ product, quantity, onChange }: CartQtyInputProps) {
+  const minQty = product.moq ?? 1;
+  const step = product.moq ?? 1;
+  const [raw, setRaw] = useState(String(quantity));
+  useEffect(() => { setRaw(String(quantity)); }, [quantity]);
+
+  return (
+    <input
+      type="text"
+      inputMode="numeric"
+      value={raw}
+      onChange={(e) => {
+        const next = e.target.value.replace(/[^0-9]/g, "");
+        setRaw(next);
+        if (next === "") return;
+        const n = parseInt(next, 10);
+        if (!isNaN(n)) onChange(product.id, n);
+      }}
+      onBlur={() => {
+        const n = parseInt(raw, 10);
+        const base = isNaN(n) || n < 1 ? minQty : n;
+        const snapped = Math.max(minQty, Math.min(product.stock, Math.round(base / step) * step));
+        const final = snapped || minQty;
+        onChange(product.id, final);
+        setRaw(String(final));
+      }}
+      className="w-12 text-center text-sm font-semibold text-[#2C3A48] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#E87B3A]/40 rounded"
+    />
+  );
+}
 
 function shuffleSlice(arr: MockProduct[], n: number): MockProduct[] {
   const out = [...arr];
@@ -35,7 +72,7 @@ function formatPrice(cents: number) {
 }
 
 export default function CartPage() {
-  const { items, remove, increment, decrement } = useCart();
+  const { items, remove, increment, decrement, setQuantity } = useCart();
   const { products } = useProducts();
   const eligible = useMemo(() => products.filter(p => p.price > 2000 && p.stock > 0), [products]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,9 +176,10 @@ export default function CartPage() {
                             >
                               <Minus className="w-3 h-3" />
                             </button>
-                            <span className="w-8 text-center text-sm font-semibold text-[#2C3A48]">
-                              {item.quantity}
-                            </span>
+                            <div className="flex items-center gap-1 px-1">
+                              <CartQtyInput product={item.product} quantity={item.quantity} onChange={setQuantity} />
+                              <span className="text-[10px] text-gray-400 font-normal">{item.product.unit ?? "pcs"}</span>
+                            </div>
                             <button
                               onClick={() => increment(item.product.id)}
                               disabled={item.quantity >= item.product.stock}

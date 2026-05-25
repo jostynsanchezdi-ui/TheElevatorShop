@@ -42,3 +42,7 @@ next-env.d.ts
 
 # claude code local settings
 .claude/settings.local.json
+
+# source data files (xlsx) — the parsed JSON in src/data is what's used by the app
+units.csv.xlsx
+*.xlsx

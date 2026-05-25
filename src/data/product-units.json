@@ -1,0 +1,892 @@
+{
+  "1 1/2\" 90 squeeze flex connector": {
+    "name": "1 1/2\" 90 SQUEEZE FLEX CONNECTOR",
+    "unit": "pcs"
+  },
+  "1 1/2\" conduit chase nipple": {
+    "name": "1 1/2\" CONDUIT CHASE NIPPLE",
+    "unit": "pcs"
+  },
+  "1 1/2\" emt 90 elbow": {
+    "name": "1 1/2\" EMT 90 ELBOW",
+    "unit": "pcs"
+  },
+  "1 1/2\" emt conduit tubing (10ft)": {
+    "name": "1 1/2\" EMT CONDUIT TUBING (10FT)",
+    "unit": "pcs",
+    "description": "1 PC = 10FT"
+  },
+  "1 1/2\" emt to flex set-screw/squeeze coupling": {
+    "name": "1 1/2\" EMT TO FLEX SET-SCREW/SQUEEZE COUPLING",
+    "unit": "pcs"
+  },
+  "1 1/2\" emt/rigid lb type conduit body with cover & gasket": {
+    "name": "1 1/2\" EMT/RIGID LB TYPE CONDUIT BODY WITH COVER & GASKET",
+    "unit": "pcs"
+  },
+  "1 1/2\" emt/rigid ll type conduit body with cover & gasket": {
+    "name": "1 1/2\" EMT/RIGID LL TYPE CONDUIT BODY WITH COVER & GASKET",
+    "unit": "pcs"
+  },
+  "1 1/2\" emt/rigid lr type conduit body with cover & gasket": {
+    "name": "1 1/2\" EMT/RIGID LR TYPE CONDUIT BODY WITH COVER & GASKET",
+    "unit": "pcs"
+  },
+  "1 1/2\" flex straight squeeze connector": {
+    "name": "1 1/2\" FLEX STRAIGHT SQUEEZE CONNECTOR",
+    "unit": "pcs",
+    "description": "box-5pc"
+  },
+  "1 1/2\" flexible metal conduit (greenfield)": {
+    "name": "1 1/2\" FLEXIBLE METAL CONDUIT (GREENFIELD)",
+    "unit": "ft"
+  },
+  "1 1/2\" plastic bushing": {
+    "name": "1 1/2\" PLASTIC BUSHING",
+    "unit": "pcs",
+    "description": "box-50"
+  },
+  "1 1/2\" snap-in knockout seal": {
+    "name": "1 1/2\" SNAP-IN KNOCKOUT SEAL",
+    "unit": "pcs"
+  },
+  "1 1/2\" steel emt 1 hole strap": {
+    "name": "1 1/2\" STEEL EMT 1 HOLE STRAP",
+    "unit": "pcs"
+  },
+  "1 1/2\" steel emt set screw connector": {
+    "name": "1 1/2\" STEEL EMT SET SCREW CONNECTOR",
+    "unit": "pcs",
+    "description": "box-25pc"
+  },
+  "1 1/2\" steel emt set screw coupling": {
+    "name": "1 1/2\" STEEL EMT SET SCREW COUPLING",
+    "unit": "pcs",
+    "description": "box-25pc"
+  },
+  "1 1/2\" threaded gal coupling": {
+    "name": "1 1/2\" THREADED GAL COUPLING",
+    "unit": "pcs"
+  },
+  "1 1/2\" universal strut clamp emt/rigid": {
+    "name": "1 1/2\" UNIVERSAL STRUT CLAMP EMT/RIGID",
+    "unit": "pcs"
+  },
+  "1 1/4\" annular cutter 2'' cut depth (magnetic drill bit)": {
+    "name": "1 1/4\" ANNULAR CUTTER 2'' CUT DEPTH (magnetic drill bit)",
+    "unit": "pcs",
+    "description": "MAGNETIC DRILL BIT"
+  },
+  "1\" annular cutter 2\" cut depth (magnetic drill bit)": {
+    "name": "1\" ANNULAR CUTTER 2\" CUT DEPTH (magnetic drill bit)",
+    "unit": "pcs"
+  },
+  "1/2\" 90 squeeze flex connector": {
+    "name": "1/2\" 90 SQUEEZE FLEX CONNECTOR",
+    "unit": "pcs",
+    "description": "BOX-25"
+  },
+  "1/2\" conduit chase nipple": {
+    "name": "1/2\" CONDUIT CHASE NIPPLE",
+    "unit": "pcs"
+  },
+  "1/2\" emt 90 elbow": {
+    "name": "1/2\" EMT 90 ELBOW",
+    "unit": "pcs"
+  },
+  "1/2\" emt conduit tubing (10ft)": {
+    "name": "1/2\" EMT CONDUIT TUBING (10FT)",
+    "unit": "pcs",
+    "description": "1 PC = 10FT"
+  },
+  "1/2\" emt to flex set-screw/squeeze coupling": {
+    "name": "1/2\" EMT TO FLEX SET-SCREW/SQUEEZE COUPLING",
+    "unit": "pcs",
+    "description": "BOX/25"
+  },
+  "1/2\" emt/rigid lb type conduit body with cover & gasket": {
+    "name": "1/2\" EMT/RIGID LB TYPE CONDUIT BODY WITH COVER & GASKET",
+    "unit": "pcs"
+  },
+  "1/2\" emt/rigid ll type conduit body with cover & gasket": {
+    "name": "1/2\" EMT/RIGID LL TYPE CONDUIT BODY WITH COVER & GASKET",
+    "unit": "pcs"
+  },
+  "1/2\" emt/rigid lr type conduit body with cover & gasket": {
+    "name": "1/2\" EMT/RIGID LR TYPE CONDUIT BODY WITH COVER & GASKET",
+    "unit": "pcs"
+  },
+  "1/2\" flat washer zinc": {
+    "name": "1/2\" FLAT WASHER ZINC",
+    "unit": "pcs"
+  },
+  "1/2\" flex straight squeeze connector": {
+    "name": "1/2\" FLEX STRAIGHT SQUEEZE CONNECTOR",
+    "unit": "pcs",
+    "description": "BOX-25"
+  },
+  "1/2\" flexible metal conduit (greenfield)": {
+    "name": "1/2\" FLEXIBLE METAL CONDUIT (GREENFIELD)",
+    "unit": "ft"
+  },
+  "1/2\" hex nut zinc": {
+    "name": "1/2\" HEX NUT ZINC",
+    "unit": "pcs"
+  },
+  "1/2\" plastic bushing": {
+    "name": "1/2\" PLASTIC BUSHING",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "1/2\" snap-in knockout seal": {
+    "name": "1/2\" SNAP-IN KNOCKOUT SEAL",
+    "unit": "pcs"
+  },
+  "1/2\" split lock washer zinc": {
+    "name": "1/2\" SPLIT LOCK WASHER ZINC",
+    "unit": "pcs"
+  },
+  "1/2\" steel emt 1 hole strap": {
+    "name": "1/2\" STEEL EMT 1 HOLE STRAP",
+    "unit": "pcs"
+  },
+  "1/2\" steel emt set screw connector": {
+    "name": "1/2\" STEEL EMT SET SCREW CONNECTOR",
+    "unit": "pcs",
+    "description": "box-50pcs"
+  },
+  "1/2\" steel emt set screw coupling": {
+    "name": "1/2\" STEEL EMT SET SCREW COUPLING",
+    "unit": "pcs",
+    "description": "box-50pcs"
+  },
+  "1/2\" two screw connector": {
+    "name": "1/2\" TWO SCREW CONNECTOR",
+    "unit": "pcs",
+    "description": "Same as 1/2\" FLEX/SQUEEZE STRAIGHT CONN"
+  },
+  "1/2\" universal strut clamp emt/rigid": {
+    "name": "1/2\" UNIVERSAL STRUT CLAMP EMT/RIGID",
+    "unit": "pcs"
+  },
+  "1/4\" flat washer zinc": {
+    "name": "1/4\" FLAT WASHER ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "1/4\" hex nut zinc": {
+    "name": "1/4\" HEX NUT ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "1/4\" split lock washer zinc": {
+    "name": "1/4\" SPLIT LOCK WASHER ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "1/4-20\" serrated flange hex lock nut zinc": {
+    "name": "1/4-20\" SERRATED FLANGE HEX LOCK NUT ZINC",
+    "unit": "pcs",
+    "description": "100/BX"
+  },
+  "125vac electric plug connector": {
+    "name": "125VAC ELECTRIC PLUG CONNECTOR",
+    "unit": "pcs"
+  },
+  "12x12x4 electrical junction box pullbox with kos": {
+    "name": "12X12X4 ELECTRICAL JUNCTION BOX PULLBOX WITH KOS",
+    "unit": "pcs"
+  },
+  "3/4\" 90 squeeze flex connector": {
+    "name": "3/4\" 90 SQUEEZE FLEX CONNECTOR",
+    "unit": "pcs",
+    "description": "box-10"
+  },
+  "3/4\" annular cutter 2'' cut depth (magnetic drill bit)": {
+    "name": "3/4\" ANNULAR CUTTER 2'' CUT DEPTH (magnetic drill bit)",
+    "unit": "pcs",
+    "description": "MAGNETIC DRILL BIT"
+  },
+  "3/4\" emt 90 elbow": {
+    "name": "3/4\" EMT 90 ELBOW",
+    "unit": "pcs"
+  },
+  "3/4\" emt conduit tubing": {
+    "name": "3/4\" EMT CONDUIT TUBING",
+    "unit": "pcs",
+    "description": "1 PC = 10FT"
+  },
+  "3/4\" emt to flex set-screw/squeeze coupling": {
+    "name": "3/4\" EMT TO FLEX SET-SCREW/SQUEEZE COUPLING",
+    "unit": "pcs"
+  },
+  "3/4\" flex straight squeeze connector": {
+    "name": "3/4\" FLEX STRAIGHT SQUEEZE CONNECTOR",
+    "unit": "pcs",
+    "description": "box-25pc"
+  },
+  "3/4\" flexible metal conduit (greenfield)": {
+    "name": "3/4\" FLEXIBLE METAL CONDUIT (GREENFIELD)",
+    "unit": "ft"
+  },
+  "3/4\" plastic bushing": {
+    "name": "3/4\" PLASTIC BUSHING",
+    "unit": "pcs",
+    "description": "box-100"
+  },
+  "3/4\" snap-in knockout seal": {
+    "name": "3/4\" SNAP-IN KNOCKOUT SEAL",
+    "unit": "pcs"
+  },
+  "3/4\" steel emt 1 hole strap": {
+    "name": "3/4\" STEEL EMT 1 HOLE STRAP",
+    "unit": "pcs"
+  },
+  "3/4\" steel emt set screw connector": {
+    "name": "3/4\" STEEL EMT SET SCREW CONNECTOR",
+    "unit": "pcs",
+    "description": "box-25pc"
+  },
+  "3/4\" steel emt set screw coupling": {
+    "name": "3/4\" STEEL EMT SET SCREW COUPLING",
+    "unit": "pcs",
+    "description": "box-25pc"
+  },
+  "3/4\" universal strut clamp emt/rigid": {
+    "name": "3/4\" UNIVERSAL STRUT CLAMP EMT/RIGID",
+    "unit": "pcs"
+  },
+  "3/8\" 90 squeeze flex connector": {
+    "name": "3/8\" 90 SQUEEZE FLEX CONNECTOR",
+    "unit": "pcs",
+    "description": "box-50"
+  },
+  "3/8\" flex straight squeeze connector": {
+    "name": "3/8\" FLEX STRAIGHT SQUEEZE CONNECTOR",
+    "unit": "pcs",
+    "description": "box-100"
+  },
+  "3/8\" flexible metal conduit (greenfield)": {
+    "name": "3/8\" FLEXIBLE METAL CONDUIT (GREENFIELD)",
+    "unit": "ft"
+  },
+  "3/8'' flat washer zinc": {
+    "name": "3/8'' FLAT WASHER ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "3/8'' hex nut zinc": {
+    "name": "3/8'' HEX NUT ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "3/8'' split lock washer zinc": {
+    "name": "3/8'' SPLIT LOCK WASHER ZINC",
+    "unit": "pcs"
+  },
+  "3/8-16\" serrated flange hex lock nut zinc": {
+    "name": "3/8-16\" SERRATED FLANGE HEX LOCK NUT ZINC",
+    "unit": "pcs",
+    "description": "100/BX"
+  },
+  "4\" square electrical box (4\" 1900 box)": {
+    "name": "4\" SQUARE ELECTRICAL BOX (4\" 1900 BOX)",
+    "unit": "pcs"
+  },
+  "4\" square steel blank cover (4\" 1900 box blank cover)": {
+    "name": "4\" SQUARE STEEL BLANK COVER (4\" 1900 BOX BLANK COVER)",
+    "unit": "pcs"
+  },
+  "48vdc power supply adapter": {
+    "name": "48VDC POWER SUPPLY ADAPTER",
+    "unit": "pcs"
+  },
+  "5 port ethernet switch": {
+    "name": "5 PORT ETHERNET SWITCH",
+    "unit": "pcs"
+  },
+  "5-hole angle connector": {
+    "name": "5-HOLE ANGLE CONNECTOR",
+    "unit": "pcs",
+    "description": "5-HOLES KINDORF ANGLE CONNECTOR"
+  },
+  "5/8 annular cutter 2'' cut depth (magnetic drill bit)": {
+    "name": "5/8 ANNULAR CUTTER 2'' CUT DEPTH (magnetic drill bit)",
+    "unit": "pcs",
+    "description": "MAGNETIC DRILL BIT"
+  },
+  "5/8'' flat washer zinc": {
+    "name": "5/8'' FLAT WASHER ZINC",
+    "unit": "pcs"
+  },
+  "5/8'' hex nut zinc": {
+    "name": "5/8'' HEX NUT ZINC",
+    "unit": "pcs"
+  },
+  "5/8'' split lock washer zinc": {
+    "name": "5/8'' SPLIT LOCK WASHER ZINC",
+    "unit": "pcs"
+  },
+  "7/8\" annular cutter 1'' cut depth (magnetic drill bit)": {
+    "name": "7/8\" ANNULAR CUTTER 1'' CUT DEPTH (magnetic drill bit)",
+    "unit": "pcs",
+    "description": "MAGNETIC DRILL BIT"
+  },
+  "8x8x4 electrical junction box pullbox with kos": {
+    "name": "8X8X4 ELECTRICAL JUNCTION BOX PULLBOX WITH KOS",
+    "unit": "pcs"
+  },
+  "anti short bushing 3/8''": {
+    "name": "ANTI SHORT BUSHING 3/8''",
+    "unit": "pcs",
+    "description": "33/box",
+    "moq": 33
+  },
+  "auxiliary car box with gfci": {
+    "name": "AUXILIARY CAR BOX WITH GFCI",
+    "unit": "pcs",
+    "description": "ACBG-15 UNDER CAB WORK LIGHT"
+  },
+  "awg #12 thhn black wire ac copper stranded": {
+    "name": "AWG #12 THHN BLACK WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "awg #12 thhn green wire ac copper stranded": {
+    "name": "AWG #12 THHN GREEN WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "awg #12 thhn white wire ac copper stranded": {
+    "name": "AWG #12 THHN WHITE WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "awg #18 thhn blue wire ac copper stranded": {
+    "name": "AWG #18 THHN BLUE WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "awg #18 thhn orange wire ac copper stranded": {
+    "name": "AWG #18 THHN ORANGE WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "awg #18 thhn red wire ac copper stranded": {
+    "name": "AWG #18 THHN RED WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "awg #18 thhn yellow wire ac copper stranded": {
+    "name": "AWG #18 THHN YELLOW WIRE AC COPPER STRANDED",
+    "unit": "ft",
+    "description": "1 ROLL = 500FT",
+    "moq": 500
+  },
+  "battery backup ups 450va": {
+    "name": "BATTERY BACKUP UPS 450VA",
+    "unit": "pcs"
+  },
+  "bi metal hole saw 1 1/2\"": {
+    "name": "BI METAL HOLE SAW 1 1/2\"",
+    "unit": "pcs"
+  },
+  "bi metal hole saw 2''": {
+    "name": "BI METAL HOLE SAW 2''",
+    "unit": "pcs"
+  },
+  "bi metal hole saw 3/4''": {
+    "name": "BI METAL HOLE SAW 3/4''",
+    "unit": "pcs"
+  },
+  "bi metal hole saw 7/8''": {
+    "name": "BI METAL HOLE SAW 7/8''",
+    "unit": "pcs"
+  },
+  "cat-5 ethernet cable 15ft": {
+    "name": "CAT-5 ETHERNET CABLE 15FT",
+    "unit": "pcs"
+  },
+  "cat-5 ethernet cable 25ft": {
+    "name": "CAT-5 ETHERNET CABLE 25FT",
+    "unit": "pcs"
+  },
+  "caution tape 3in x 1000ft roll": {
+    "name": "CAUTION TAPE 3IN X 1000FT ROLL",
+    "unit": "pcs"
+  },
+  "door lock wire or radix high temperature wire #18 awg (blk/red or wht)": {
+    "name": "DOOR LOCK WIRE OR RADIX HIGH TEMPERATURE WIRE #18 AWG (BLK/RED OR WHT)",
+    "unit": "ft",
+    "description": "1 Roll =500FT Door lock wire Radix High Temperature Wire, 18 AWG",
+    "moq": 500
+  },
+  "electrical extension cord 100ft 120vac 12/3": {
+    "name": "ELECTRICAL EXTENSION CORD 100FT 120VAC 12/3",
+    "unit": "pcs"
+  },
+  "electrical extension cord 50ft 120vac 12/3": {
+    "name": "ELECTRICAL EXTENSION CORD 50FT 120VAC 12/3",
+    "unit": "pcs"
+  },
+  "electrical tape black": {
+    "name": "ELECTRICAL TAPE BLACK",
+    "unit": "pcs"
+  },
+  "electrical tape blue": {
+    "name": "ELECTRICAL TAPE BLUE",
+    "unit": "pcs"
+  },
+  "electrical tape red": {
+    "name": "ELECTRICAL TAPE RED",
+    "unit": "pcs"
+  },
+  "electrical tape white (3m 35)": {
+    "name": "ELECTRICAL TAPE WHITE (3M 35)",
+    "unit": "pcs"
+  },
+  "electrical tape yellow (3m 35)": {
+    "name": "ELECTRICAL TAPE YELLOW (3M 35)",
+    "unit": "pcs"
+  },
+  "extension ladder 16ft": {
+    "name": "EXTENSION LADDER 16FT",
+    "unit": "pcs"
+  },
+  "grinding wheel cutting disc 4 1/2\"": {
+    "name": "GRINDING WHEEL CUTTING DISC 4 1/2\"",
+    "unit": "pcs",
+    "description": "box-25pcs",
+    "moq": 25
+  },
+  "hammer drill bit sds plus 1/4'' x 8\" concrete": {
+    "name": "HAMMER DRILL BIT SDS PLUS 1/4'' X 8\" CONCRETE",
+    "unit": "pcs"
+  },
+  "hammer drill bit sds plus 3/8'' x 6\" concrete": {
+    "name": "HAMMER DRILL BIT SDS PLUS 3/8'' X 6\" CONCRETE",
+    "unit": "pcs"
+  },
+  "hammer drill bit sds plus 3/8'' x 8\" concrete": {
+    "name": "HAMMER DRILL BIT SDS PLUS 3/8'' X 8\" CONCRETE",
+    "unit": "pcs"
+  },
+  "hammer drill bit sds plus 5/8'' x 12\" concrete": {
+    "name": "HAMMER DRILL BIT SDS PLUS 5/8'' X 12\" CONCRETE",
+    "unit": "pcs"
+  },
+  "hammer drill bit sds plus 5/8'' x 6\" concrete": {
+    "name": "HAMMER DRILL BIT SDS PLUS 5/8'' X 6\" CONCRETE",
+    "unit": "pcs"
+  },
+  "hammer drill bit sds plus 5/8'' x 8\" concrete": {
+    "name": "HAMMER DRILL BIT SDS PLUS 5/8'' X 8\" CONCRETE",
+    "unit": "pcs"
+  },
+  "handy box 1-7/8\"d (2x4 electrical box)": {
+    "name": "HANDY BOX 1-7/8\"D (2X4 ELECTRICAL BOX)",
+    "unit": "pcs"
+  },
+  "handy box blank cover (2x4 electrical box cover)": {
+    "name": "HANDY BOX BLANK COVER (2X4 ELECTRICAL BOX COVER)",
+    "unit": "pcs"
+  },
+  "hex tap bolt full thread 1/2'' x 3'' grade 5": {
+    "name": "HEX TAP BOLT FULL THREAD 1/2'' X 3'' GRADE 5",
+    "unit": "pcs"
+  },
+  "hex tap bolt full thread 1/4'' x 1 1/2'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 1/4'' x 1 1/2'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "hex tap bolt full thread 1/4'' x 2'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 1/4'' x 2'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "BOX-100 ZINC"
+  },
+  "hex tap bolt full thread 1/4'' x 3'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 1/4'' x 3'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "BOX-100 ZINC"
+  },
+  "hex tap bolt full thread 1/4'' x 4'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 1/4'' x 4'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "ZINC"
+  },
+  "hex tap bolt full thread 3/8'' x 1 1/4'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 3/8'' X 1 1/4'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "100/Box"
+  },
+  "hex tap bolt full thread 3/8'' x 2'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 3/8'' X 2'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "hex tap bolt full thread 3/8'' x 3'' grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 3/8'' X 3'' GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "BOX-50PCS"
+  },
+  "hex tap bolt full thread 5/8'' x 3'' grade 5": {
+    "name": "HEX TAP BOLT FULL THREAD 5/8'' X 3'' GRADE 5",
+    "unit": "pcs"
+  },
+  "hex tap bolt full thread 5/8'' x 4\" grade a307 zinc": {
+    "name": "HEX TAP BOLT FULL THREAD 5/8'' X 4\" GRADE A307 ZINC",
+    "unit": "pcs",
+    "description": "ZINC"
+  },
+  "hex tap bolt full thread 5/8'' x 5'' grade 5": {
+    "name": "HEX TAP BOLT FULL THREAD 5/8'' X 5'' GRADE 5",
+    "unit": "pcs"
+  },
+  "jute core travel cable - 10 conductor rover multicable": {
+    "name": "JUTE CORE TRAVEL CABLE - 10 CONDUCTOR ROVER MULTICABLE",
+    "unit": "ft",
+    "description": "10 CONDUCTOR ROVER MULTICABLE"
+  },
+  "kindorf spring nut zinc 3/8''": {
+    "name": "KINDORF SPRING NUT ZINC 3/8''",
+    "unit": "pcs"
+  },
+  "kindorf spring nut zinc 5/16''": {
+    "name": "KINDORF SPRING NUT ZINC 5/16''",
+    "unit": "pcs"
+  },
+  "led temporary hanging work light 100w": {
+    "name": "LED TEMPORARY HANGING WORK LIGHT 100W",
+    "unit": "pcs",
+    "description": "100W"
+  },
+  "light bulb a19 led daylight 5000k": {
+    "name": "LIGHT BULB A19 LED Daylight 5000K",
+    "unit": "pcs",
+    "description": "8 Watt LED Equivalent to 60 Watt 760LM 15,000hrs Lifetime"
+  },
+  "light bulb cage metal (metal lamp guard)": {
+    "name": "LIGHT BULB CAGE METAL (METAL LAMP GUARD)",
+    "unit": "pcs"
+  },
+  "magnetic level 4ft": {
+    "name": "MAGNETIC LEVEL 4FT",
+    "unit": "pcs",
+    "description": "48''"
+  },
+  "magnetic level 6ft": {
+    "name": "MAGNETIC LEVEL 6FT",
+    "unit": "pcs",
+    "description": "72''"
+  },
+  "master lock brass combination lock": {
+    "name": "MASTER LOCK BRASS COMBINATION LOCK",
+    "unit": "pcs"
+  },
+  "metal hd/hss black oxide & gold drill bit 1/2\"": {
+    "name": "METAL HD/HSS BLACK OXIDE & GOLD DRILL BIT 1/2\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss black oxide & gold drill bit 1/4\"": {
+    "name": "METAL HD/HSS BLACK OXIDE & GOLD DRILL BIT 1/4\"",
+    "unit": "pcs",
+    "description": "1 PACK= 12 PCS",
+    "moq": 12
+  },
+  "metal hd/hss black oxide & gold drill bit 3/8\"": {
+    "name": "METAL HD/HSS BLACK OXIDE & GOLD DRILL BIT 3/8\"",
+    "unit": "pcs",
+    "description": "1 PACK= 6 PCS",
+    "moq": 6
+  },
+  "metal hd/hss cobalt drill bit 3/4\"": {
+    "name": "METAL HD/HSS COBALT DRILL BIT 3/4\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss titanium gold drill bit 1\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 1\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss titanium gold drill bit 1/2\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 1/2\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss titanium gold drill bit 1/4\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 1/4\"",
+    "unit": "pcs",
+    "description": "1 PACK= 10 PCS",
+    "moq": 10
+  },
+  "metal hd/hss titanium gold drill bit 1/8\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 1/8\"",
+    "unit": "pcs",
+    "description": "1 PACK= 10 PCS",
+    "moq": 10
+  },
+  "metal hd/hss titanium gold drill bit 3/8\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 3/8\"",
+    "unit": "pcs",
+    "description": "1 PACK= 5 PCS",
+    "moq": 5
+  },
+  "metal hd/hss titanium gold drill bit 5/16\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 5/16\"",
+    "unit": "pcs",
+    "description": "1 PACK= 5 PCS",
+    "moq": 5
+  },
+  "metal hd/hss titanium gold drill bit 5/8\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 5/8\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss titanium gold drill bit 7/8\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 7/8\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss titanium gold drill bit 9/16\"": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT 9/16\"",
+    "unit": "pcs"
+  },
+  "metal hd/hss titanium gold drill bit no. 21": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT NO. 21",
+    "unit": "pcs",
+    "description": "1 PACK= 10 PCS",
+    "moq": 10
+  },
+  "metal hd/hss titanium gold drill bit no. 29": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT NO. 29",
+    "unit": "pcs",
+    "description": "1 PACK= 10 PCS",
+    "moq": 10
+  },
+  "metal hd/hss titanium gold drill bit no. 7": {
+    "name": "METAL HD/HSS TITANIUM GOLD DRILL BIT NO. 7",
+    "unit": "pcs",
+    "description": "1 PACK= 10 PCS",
+    "moq": 10
+  },
+  "multi cable/hoistway cable 10 conductor": {
+    "name": "MULTI CABLE/HOISTWAY CABLE 10 CONDUCTOR",
+    "unit": "ft",
+    "description": "10 CONDUCTOR"
+  },
+  "multi cable/hoistway cable 14 conductor": {
+    "name": "MULTI CABLE/HOISTWAY CABLE 14 CONDUCTOR",
+    "unit": "ft",
+    "description": "14 CONDUCTOR"
+  },
+  "multi cable/hoistway cable 24 conductor": {
+    "name": "MULTI CABLE/HOISTWAY CABLE 24 CONDUCTOR",
+    "unit": "ft",
+    "description": "24 CONDUCTOR"
+  },
+  "multi cable/hoistway cable 30 conductor": {
+    "name": "MULTI CABLE/HOISTWAY CABLE 30 CONDUCTOR",
+    "unit": "ft"
+  },
+  "nitrile work gloves cut resistant ansi a1": {
+    "name": "NITRILE WORK GLOVES CUT RESISTANT ANSI A1",
+    "unit": "pcs",
+    "description": "1 PACK= 12PCS",
+    "moq": 12
+  },
+  "permanent markers fine tip": {
+    "name": "PERMANENT MARKERS FINE TIP",
+    "unit": "pcs"
+  },
+  "piano wire 0.029 (roll 2200 ft)": {
+    "name": "PIANO WIRE 0.029 (ROLL 2200 FT)",
+    "unit": "pcs",
+    "description": "Roll= 2200'"
+  },
+  "plastic anchor kit 10-12 x 1 1/4": {
+    "name": "PLASTIC ANCHOR KIT 10-12 X 1 1/4",
+    "unit": "pack"
+  },
+  "plumb bob (16oz)": {
+    "name": "PLUMB BOB (16OZ)",
+    "unit": "pcs"
+  },
+  "plumb bob (8oz)": {
+    "name": "PLUMB BOB (8OZ)",
+    "unit": "pcs"
+  },
+  "rags": {
+    "name": "Rags",
+    "unit": "lb",
+    "description": "Wiping rags cloth (5lbs, 10lbs, 25lbs and 50lbs carton available)",
+    "moq": 5
+  },
+  "reciprocating saw blade metal cutting 6'' (sawzall blade)": {
+    "name": "RECIPROCATING SAW BLADE METAL CUTTING 6'' (SAWZALL BLADE)",
+    "unit": "pcs",
+    "description": "1 PACK = 10 PCS",
+    "moq": 10
+  },
+  "reciprocating saw blade metal cutting 9'' (sawzall blade)": {
+    "name": "RECIPROCATING SAW BLADE METAL CUTTING 9'' (SAWZALL BLADE)",
+    "unit": "pcs",
+    "description": "1 PACK = 10 PCS",
+    "moq": 10
+  },
+  "reciprocating saw blade wood cutting 6'' (sawzall blade)": {
+    "name": "RECIPROCATING SAW BLADE WOOD CUTTING 6'' (SAWZALL BLADE)",
+    "unit": "pcs",
+    "description": "1 PACK = 5PCS",
+    "moq": 5
+  },
+  "reciprocating saw blade wood cutting 9'' (sawzall blade)": {
+    "name": "RECIPROCATING SAW BLADE WOOD CUTTING 9'' (SAWZALL BLADE)",
+    "unit": "pcs",
+    "description": "1 PACK = 5PCS",
+    "moq": 5
+  },
+  "roller plunger safety limit switch": {
+    "name": "ROLLER PLUNGER SAFETY LIMIT SWITCH",
+    "unit": "pcs",
+    "description": "RAIL LOCK SWITCHES"
+  },
+  "roller safety suns limit switch": {
+    "name": "ROLLER SAFETY SUNS LIMIT SWITCH",
+    "unit": "pcs"
+  },
+  "safety glasses": {
+    "name": "SAFETY GLASSES",
+    "unit": "pcs",
+    "description": "box-4pcs",
+    "moq": 2
+  },
+  "safety harness": {
+    "name": "SAFETY HARNESS",
+    "unit": "pcs",
+    "description": "FALL PROTECTION KIT"
+  },
+  "safety interlock pull out switch": {
+    "name": "SAFETY INTERLOCK PULL OUT SWITCH",
+    "unit": "pcs"
+  },
+  "self drilling screw hex head 10 x 3/4\"": {
+    "name": "SELF DRILLING SCREW HEX HEAD 10 X 3/4\"",
+    "unit": "pcs"
+  },
+  "simple green cleaner": {
+    "name": "SIMPLE GREEN CLEANER",
+    "unit": "gallon",
+    "description": "1 GALLON-128 FL OZ"
+  },
+  "sling strap yellow 2'' x 8'' lift sling": {
+    "name": "SLING STRAP YELLOW 2'' X 8'' LIFT SLING",
+    "unit": "pcs"
+  },
+  "sling strap yellow 3\" x 6' lift sling": {
+    "name": "SLING STRAP YELLOW 3\" X 6' LIFT SLING",
+    "unit": "pcs"
+  },
+  "sling strap yellow 3\" x 6' lift sling 2-ply polyester": {
+    "name": "SLING STRAP YELLOW 3\" X 6' LIFT SLING 2-PLY POLYESTER",
+    "unit": "pcs"
+  },
+  "spray paint orange (rust oleum 2x ultra cover 12oz)": {
+    "name": "SPRAY PAINT ORANGE (RUST OLEUM 2X ULTRA COVER 12OZ)",
+    "unit": "pcs"
+  },
+  "spray paint yellow": {
+    "name": "SPRAY PAINT YELLOW",
+    "unit": "pcs",
+    "description": "RUST OLEUM 2X ULTRA COVER 12OZ"
+  },
+  "stencil numbers and letters 6in": {
+    "name": "STENCIL NUMBERS AND LETTERS 6IN",
+    "unit": "pack"
+  },
+  "strut channel 1 1/2'' x 1 1/2'' (10ft)": {
+    "name": "STRUT CHANNEL 1 1/2'' x 1 1/2'' (10FT)",
+    "unit": "pcs",
+    "description": "KINDORF - 1 pc = 10ft"
+  },
+  "temporary run station/ temporary run box button": {
+    "name": "TEMPORARY RUN STATION/ TEMPORARY RUN BOX BUTTON",
+    "unit": "pcs"
+  },
+  "toggle pit switch": {
+    "name": "TOGGLE PIT SWITCH",
+    "unit": "pcs"
+  },
+  "triple tap gfci receptacle 3ft extension": {
+    "name": "TRIPLE TAP GFCI RECEPTACLE 3FT EXTENSION",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 1 1/2\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 1 1/2\"",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 1 1/8\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 1 1/8\"",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 1 3/8\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 1 3/8\"",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 1\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 1\"",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 2\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 2\"",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 3/4\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 3/4\"",
+    "unit": "pcs"
+  },
+  "tungsten carbide tipped hole cutter 7/8\"": {
+    "name": "TUNGSTEN CARBIDE TIPPED HOLE CUTTER 7/8\"",
+    "unit": "pcs"
+  },
+  "wd 40 spray 12oz": {
+    "name": "WD 40 SPRAY 12OZ",
+    "unit": "pcs"
+  },
+  "wedge anchor 1/4'' x 2 1/4''": {
+    "name": "WEDGE ANCHOR 1/4'' x 2 1/4''",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "wedge anchor 3/8'' x 3 3/4''": {
+    "name": "WEDGE ANCHOR 3/8'' x 3 3/4''",
+    "unit": "pcs",
+    "description": "box-100pcs"
+  },
+  "wedge anchor 3/8'' x 5''": {
+    "name": "WEDGE ANCHOR 3/8'' x 5''",
+    "unit": "pcs"
+  },
+  "wedge anchor 5/8\" x 4 1/2\"": {
+    "name": "WEDGE ANCHOR 5/8\" x 4 1/2\"",
+    "unit": "pcs",
+    "description": "box-25pcs"
+  },
+  "wedge anchor 5/8\" x 5\"": {
+    "name": "WEDGE ANCHOR 5/8\" x 5\"",
+    "unit": "pcs",
+    "description": "box-25pcs"
+  },
+  "wedge anchor 5/8\" x 6\"": {
+    "name": "WEDGE ANCHOR 5/8\" x 6\"",
+    "unit": "pcs",
+    "description": "(BOX-10PCS)"
+  },
+  "wood screws 2 1/2''": {
+    "name": "WOOD SCREWS 2 1/2''",
+    "unit": "box",
+    "description": "box-100pcs"
+  }
+}

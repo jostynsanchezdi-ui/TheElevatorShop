@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Package, ShoppingCart, Heart, Plus,
@@ -52,11 +52,16 @@ export default function ProductCard({ product, className, onClick }: ProductCard
   const { add: addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [ripple, setRipple] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const minQty = product.moq ?? 1;
+  const step = product.moq ?? 1;
+  const [quantity, setQuantity] = useState(minQty);
+  const [qtyInput, setQtyInput] = useState(String(minQty));
+  // Keep the input string in sync when the +/- buttons change quantity
+  useEffect(() => { setQtyInput(String(quantity)); }, [quantity]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    for (let i = 0; i < quantity; i++) addToCart(product);
+    addToCart(product, quantity);
     setAdded(true);
     setRipple(true);
     setTimeout(() => setRipple(false), 400);
@@ -65,7 +70,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
 
   const handleQty = (e: React.MouseEvent, delta: number) => {
     e.stopPropagation();
-    setQuantity((q) => Math.min(product.stock, Math.max(1, q + delta)));
+    setQuantity((q) => Math.min(product.stock, Math.max(minQty, q + delta * step)));
   };
 
   return (
@@ -192,7 +197,10 @@ export default function ProductCard({ product, className, onClick }: ProductCard
           ) : (
             <span />
           )}
-          <span className="text-sm font-bold text-gray-900">{formatPrice(product.price)}</span>
+          <span className="text-sm font-bold text-gray-900">
+            {formatPrice(product.price)}
+            <span className="text-[10px] font-medium text-gray-400 ml-1">/ {product.unit ?? "pcs"}</span>
+          </span>
         </div>
 
         {/* Quantity + Add to Cart */}
@@ -202,8 +210,29 @@ export default function ProductCard({ product, className, onClick }: ProductCard
             onClick={(e) => e.stopPropagation()}
             className={clsx("flex items-center gap-1.5 border rounded-lg px-2 py-1.5 shrink-0", product.stock <= 0 ? "border-gray-100 opacity-40 pointer-events-none" : "border-gray-200")}
           >
-            <button onClick={(e) => handleQty(e, -1)} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium">−</button>
-            <span className="w-5 text-center text-xs font-semibold text-[#2C3A48]">{quantity}</span>
+            <button onClick={(e) => handleQty(e, -1)} disabled={quantity <= minQty} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500">−</button>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={qtyInput}
+              onClick={(e) => e.stopPropagation()}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/[^0-9]/g, "");
+                setQtyInput(raw);
+                if (raw === "") return;
+                const n = parseInt(raw, 10);
+                if (!isNaN(n)) setQuantity(n);
+              }}
+              onBlur={() => {
+                const n = parseInt(qtyInput, 10);
+                const base = isNaN(n) || n < 1 ? minQty : n;
+                const snapped = Math.max(minQty, Math.min(product.stock, Math.round(base / step) * step));
+                const final = snapped || minQty;
+                setQuantity(final);
+                setQtyInput(String(final));
+              }}
+              className="w-9 text-center text-xs font-semibold text-[#2C3A48] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#E87B3A]/40 rounded"
+            />
             <button onClick={(e) => handleQty(e, 1)} disabled={quantity >= product.stock} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500">+</button>
           </div>
 

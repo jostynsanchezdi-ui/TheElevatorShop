@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import { Loader2, Printer, Download } from "lucide-react";
+import { getUnit } from "@/lib/product-units";
 
 interface OrderItem {
   id: string;
@@ -356,7 +357,12 @@ export default function POPage() {
                     <td style={{ padding: "13px 14px" }}>
                       <p style={{ fontSize: 13, fontWeight: 700, color: "#1a2535" }}>{item.name}</p>
                     </td>
-                    <td style={{ padding: "13px 14px", textAlign: "center", fontSize: 13, color: "#E87B3A", fontWeight: 700 }}>{item.quantity}</td>
+                    <td style={{ padding: "13px 14px", textAlign: "center", fontSize: 13, color: "#E87B3A", fontWeight: 700 }}>
+                      <span style={{ display: "inline-flex", alignItems: "baseline", justifyContent: "center", gap: 4 }}>
+                        <span style={{ minWidth: 28, textAlign: "right", fontVariantNumeric: "tabular-nums" }}>{item.quantity}</span>
+                        <span style={{ minWidth: 32, textAlign: "left", fontSize: 10, color: "#9ca3af", fontWeight: 500 }}>{getUnit(item.name)}</span>
+                      </span>
+                    </td>
                     <td style={{ padding: "13px 14px", textAlign: "right", fontSize: 13, color: "#374151" }}>{formatPrice(item.price)}</td>
                     <td style={{ padding: "13px 14px", textAlign: "right", fontSize: 13, fontWeight: 700, color: "#1a2535" }}>{formatPrice(item.price * item.quantity)}</td>
                   </tr>

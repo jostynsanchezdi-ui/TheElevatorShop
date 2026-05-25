@@ -1,3 +1,5 @@
+import { getUnit } from "@/lib/product-units";
+
 interface OrderItem {
   name: string;
   sku?: string;
@@ -35,7 +37,7 @@ export function renderInternalAlertEmail(d: InternalAlertData): string {
   const itemRows = d.items.map((item) => `
     <tr style="border-bottom:1px solid #f1f3f5;">
       <td style="padding:14px 4px;font-size:13px;font-weight:700;color:#1a2535;line-height:1.4;">${item.name}</td>
-      <td style="padding:14px 4px;text-align:center;font-size:13px;font-weight:700;color:#E87B3A;">${item.quantity}</td>
+      <td style="padding:14px 4px;text-align:center;font-size:13px;font-weight:700;color:#E87B3A;">${item.quantity} <span style="font-size:10px;color:#9ca3af;font-weight:500;">${getUnit(item.name)}</span></td>
       <td style="padding:14px 4px;text-align:right;font-size:13px;color:#374151;">${fmt(item.price)}</td>
       <td style="padding:14px 4px;text-align:right;font-size:13px;font-weight:700;color:#1a2535;">${fmt(item.price * item.quantity)}</td>
     </tr>

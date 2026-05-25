@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getZohoAccessToken } from "@/lib/zoho-token";
 import type { MockProduct } from "@/lib/mock-data";
+import { getUnitInfo } from "@/lib/product-units";
 import fs from "fs";
 import path from "path";
 
@@ -295,6 +296,7 @@ function stableReviewCount(id: string): string {
 function mapItem(item: any): MockProduct {
   const { category, subcategory } = categorize(item.item_name ?? "");
   const name = item.item_name ?? "Unknown Item";
+  const unitInfo = getUnitInfo(name);
   return {
     id: String(item.item_id),
     name,
@@ -308,6 +310,9 @@ function mapItem(item: any): MockProduct {
     reviewCount: stableReviewCount(String(item.item_id)),
     icon: "package",
     image: item.image_document_id ? `/api/zoho/image/${item.item_id}` : "",
+    unit: unitInfo?.unit,
+    packageInfo: unitInfo?.description,
+    moq: unitInfo?.moq,
   };
 }
 

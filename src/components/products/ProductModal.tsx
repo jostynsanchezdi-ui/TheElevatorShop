@@ -127,7 +127,11 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
   const { add: addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [ripple, setRipple] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const minQty = product.moq ?? 1;
+  const step = product.moq ?? 1;
+  const [quantity, setQuantity] = useState(minQty);
+  const [qtyInput, setQtyInput] = useState(String(minQty));
+  useEffect(() => { setQtyInput(String(quantity)); }, [quantity]);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -135,7 +139,7 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
   }, []);
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) addToCart(product);
+    addToCart(product, quantity);
     setAdded(true);
     setRipple(true);
     timersRef.current.push(setTimeout(() => setRipple(false), 400));
@@ -255,22 +259,62 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
           {/* Price */}
           <p className="text-3xl font-bold text-[#2C3A48]">
             {formatPrice(product.price)}
+            <span className="text-sm font-medium text-gray-400 ml-2">/ {product.unit ?? "pcs"}</span>
           </p>
+
+          {/* MOQ alert */}
+          {product.moq && product.moq > 1 && (
+            <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 shrink-0 mt-0.5">MOQ</span>
+              <p className="text-xs text-amber-900 leading-snug">
+                Minimum order: <strong>{product.moq} {product.unit ?? "pcs"}</strong>. Quantity must be in increments of {product.moq}.
+              </p>
+            </div>
+          )}
+
+          {/* Unit equivalence info (e.g. "1 PC = 10FT", "1 ROLL = 500FT"). Skip pure packaging descriptors like "box-25pc". */}
+          {product.packageInfo && product.packageInfo.includes("=") && (
+            <p className="text-xs text-gray-500"><strong className="text-[#2C3A48]">Packaging:</strong> {product.packageInfo}</p>
+          )}
 
           {/* Quantity + Add to Cart */}
           <div className="flex items-center gap-3 mt-1">
             {/* Quantity counter */}
             <div className={clsx("flex items-center gap-2 border rounded-xl px-3 py-2 shrink-0", product.stock <= 0 ? "border-gray-100 opacity-40 pointer-events-none" : "border-gray-200")}>
               <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-[#E87B3A] hover:bg-orange-50 transition-colors"
+                onClick={() => setQuantity((q) => Math.max(minQty, q - step))}
+                disabled={quantity <= minQty}
+                className="w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-[#E87B3A] hover:bg-orange-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500 disabled:hover:bg-transparent"
               >
                 <span className="text-base leading-none font-medium">−</span>
               </button>
-              <span className="w-6 text-center text-sm font-semibold text-[#2C3A48]">{quantity}</span>
+              <div className="px-2 flex items-center gap-1 min-w-[3.5rem]">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={qtyInput}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/[^0-9]/g, "");
+                    setQtyInput(raw);
+                    if (raw === "") return;
+                    const n = parseInt(raw, 10);
+                    if (!isNaN(n)) setQuantity(n);
+                  }}
+                  onBlur={() => {
+                    const n = parseInt(qtyInput, 10);
+                    const base = isNaN(n) || n < 1 ? minQty : n;
+                    const snapped = Math.max(minQty, Math.min(product.stock, Math.round(base / step) * step));
+                    const final = snapped || minQty;
+                    setQuantity(final);
+                    setQtyInput(String(final));
+                  }}
+                  className="w-12 text-center text-sm font-semibold text-[#2C3A48] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#E87B3A]/40 rounded"
+                />
+                <span className="text-[10px] text-gray-400 font-normal">{product.unit ?? "pcs"}</span>
+              </div>
               <button
-                onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                disabled={quantity >= product.stock}
+                onClick={() => setQuantity((q) => Math.min(product.stock, q + step))}
+                disabled={quantity + step > product.stock}
                 className="w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-[#E87B3A] hover:bg-orange-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500 disabled:hover:bg-transparent"
               >
                 <span className="text-base leading-none font-medium">+</span>

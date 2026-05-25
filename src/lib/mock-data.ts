@@ -11,6 +11,12 @@ export interface MockProduct {
   reviewCount: string;
   icon: string;
   image: string;
+  /** Unit of measure (pcs, ft, gal, lb, etc.). Defaults to "pcs". */
+  unit?: string;
+  /** Packaging info from the client's units spreadsheet, e.g. "box-25pc", "1 ROLL = 500FT". */
+  packageInfo?: string;
+  /** Minimum Order Quantity — if present, quantity controls enforce this floor + step. */
+  moq?: number;
 }
 
 export const MOCK_PRODUCTS: MockProduct[] = [
