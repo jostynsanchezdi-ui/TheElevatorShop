@@ -53,7 +53,8 @@ export default function ProductCard({ product, className, onClick }: ProductCard
   const [added, setAdded] = useState(false);
   const [ripple, setRipple] = useState(false);
   const minQty = product.moq ?? 1;
-  const step = product.moq ?? 1;
+  const step = product.step ?? product.moq ?? 1;
+  const maxQty = Math.min(product.stock, product.maxQty ?? product.stock);
   const [quantity, setQuantity] = useState(minQty);
   const [qtyInput, setQtyInput] = useState(String(minQty));
   // Keep the input string in sync when the +/- buttons change quantity
@@ -70,7 +71,7 @@ export default function ProductCard({ product, className, onClick }: ProductCard
 
   const handleQty = (e: React.MouseEvent, delta: number) => {
     e.stopPropagation();
-    setQuantity((q) => Math.min(product.stock, Math.max(minQty, q + delta * step)));
+    setQuantity((q) => Math.min(maxQty, Math.max(minQty, q + delta * step)));
   };
 
   return (
@@ -226,14 +227,14 @@ export default function ProductCard({ product, className, onClick }: ProductCard
               onBlur={() => {
                 const n = parseInt(qtyInput, 10);
                 const base = isNaN(n) || n < 1 ? minQty : n;
-                const snapped = Math.max(minQty, Math.min(product.stock, Math.round(base / step) * step));
+                const snapped = Math.max(minQty, Math.min(maxQty, Math.round(base / step) * step));
                 const final = snapped || minQty;
                 setQuantity(final);
                 setQtyInput(String(final));
               }}
               className="w-9 text-center text-xs font-semibold text-[#2C3A48] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#E87B3A]/40 rounded"
             />
-            <button onClick={(e) => handleQty(e, 1)} disabled={quantity >= product.stock} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500">+</button>
+            <button onClick={(e) => handleQty(e, 1)} disabled={quantity >= maxQty} className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-[#E87B3A] transition-colors text-sm font-medium disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500">+</button>
           </div>
 
           {/* Add to Cart */}

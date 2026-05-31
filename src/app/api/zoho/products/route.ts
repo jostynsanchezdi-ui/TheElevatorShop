@@ -304,7 +304,10 @@ function mapItem(item: any): MockProduct {
     category,
     subcategory,
     description: describeProduct(name),
-    stock: Math.round(item.available_stock ?? item.actual_available_stock ?? 0),
+    // Stock from Zoho is intentionally ignored — every item is treated as available
+    // so the client's customers can request anything via the PO; the team sources items
+    // not on hand from suppliers.
+    stock: 99999,
     price: Math.round((item.rate ?? 0) * 100),
     rating: stableRating(String(item.item_id)),
     reviewCount: stableReviewCount(String(item.item_id)),
@@ -313,6 +316,8 @@ function mapItem(item: any): MockProduct {
     unit: unitInfo?.unit,
     packageInfo: unitInfo?.description,
     moq: unitInfo?.moq,
+    maxQty: unitInfo?.maxQty,
+    step: unitInfo?.step,
   };
 }
 

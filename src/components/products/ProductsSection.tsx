@@ -19,6 +19,7 @@ export default function ProductsSection() {
   const category = useCategoryFilter((s) => s.selected);
   const setCategoryStore = useCategoryFilter((s) => s.setSelected);
   const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<MockProduct | null>(null);
@@ -44,6 +45,16 @@ export default function ProductsSection() {
   }, [search, products]);
 
   const filtered = useMemo(() => {
+    // Search takes priority: when an active query exists, filter across the whole catalog by name match
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const matches = products.filter((p) => p.name.toLowerCase().includes(q));
+      return [
+        ...matches.filter((p) => p.stock > 0).sort((a, b) => b.price - a.price),
+        ...matches.filter((p) => p.stock <= 0),
+      ];
+    }
+
     if (category === "all") return products.filter((p) => p.price > 2000);
 
     const matches = products.filter(
@@ -58,7 +69,7 @@ export default function ProductsSection() {
       ...matches.filter((p) => p.stock > 0).sort((a, b) => b.price - a.price),
       ...matches.filter((p) => p.stock <= 0),
     ];
-  }, [category, products]);
+  }, [category, products, searchQuery]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -70,10 +81,14 @@ export default function ProductsSection() {
   const handleCategory = (id: string) => {
     setCategoryStore(id);
     setPage(1);
+    // Clear active search when user picks a category
+    setSearch("");
+    setSearchQuery("");
   };
 
   // Resolve breadcrumb labels for the current selection
   const breadcrumb = useMemo(() => {
+    if (searchQuery.trim()) return { parent: `Search: "${searchQuery}"`, child: null as string | null };
     if (category === "all") return { parent: "All Parts", child: null as string | null };
     const top = categories.find((c) => c.id === category);
     if (top) return { parent: top.label, child: null };
@@ -82,7 +97,7 @@ export default function ProductsSection() {
       if (sub) return { parent: c.label, child: sub.label };
     }
     return { parent: "All Parts", child: null };
-  }, [category, categories]);
+  }, [category, categories, searchQuery]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
@@ -129,9 +144,27 @@ export default function ProductsSection() {
               value={search}
               onChange={handleSearch}
               onFocus={() => search.trim() && setDropdownOpen(true)}
-              placeholder="Search by name…"
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const q = search.trim();
+                  setSearchQuery(q);
+                  setDropdownOpen(false);
+                  setPage(1);
+                }
+              }}
+              placeholder="Search by name… (press Enter to filter)"
+              className="w-full pl-9 pr-10 py-2.5 text-sm border border-gray-200 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition"
             />
+            {searchQuery && (
+              <button
+                onClick={() => { setSearch(""); setSearchQuery(""); setPage(1); }}
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 px-2 py-1 rounded-md hover:bg-gray-100 transition-colors text-xs font-semibold"
+              >
+                Clear
+              </button>
+            )}
 
             {/* Suggestions dropdown */}
             <AnimatePresence>

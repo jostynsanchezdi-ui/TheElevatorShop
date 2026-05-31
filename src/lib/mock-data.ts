@@ -15,8 +15,12 @@ export interface MockProduct {
   unit?: string;
   /** Packaging info from the client's units spreadsheet, e.g. "box-25pc", "1 ROLL = 500FT". */
   packageInfo?: string;
-  /** Minimum Order Quantity — if present, quantity controls enforce this floor + step. */
+  /** Minimum Order Quantity — quantity floor (and default step when `step` not provided). */
   moq?: number;
+  /** Maximum order quantity. When set, counter caps here (or at stock, whichever is lower). */
+  maxQty?: number;
+  /** Increment step. Defaults to `moq` when not provided. */
+  step?: number;
 }
 
 export const MOCK_PRODUCTS: MockProduct[] = [

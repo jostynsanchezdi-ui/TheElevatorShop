@@ -25,7 +25,8 @@ interface CartQtyInputProps {
 
 function CartQtyInput({ product, quantity, onChange }: CartQtyInputProps) {
   const minQty = product.moq ?? 1;
-  const step = product.moq ?? 1;
+  const step = product.step ?? product.moq ?? 1;
+  const maxQty = Math.min(product.stock, product.maxQty ?? product.stock);
   const [raw, setRaw] = useState(String(quantity));
   useEffect(() => { setRaw(String(quantity)); }, [quantity]);
 
@@ -44,7 +45,7 @@ function CartQtyInput({ product, quantity, onChange }: CartQtyInputProps) {
       onBlur={() => {
         const n = parseInt(raw, 10);
         const base = isNaN(n) || n < 1 ? minQty : n;
-        const snapped = Math.max(minQty, Math.min(product.stock, Math.round(base / step) * step));
+        const snapped = Math.max(minQty, Math.min(maxQty, Math.round(base / step) * step));
         const final = snapped || minQty;
         onChange(product.id, final);
         setRaw(String(final));
@@ -151,8 +152,12 @@ export default function CartPage() {
                           transition={{ duration: 0.2 }}
                           className={`grid grid-cols-[2fr_1fr_1fr_auto] items-center px-6 py-5 ${i !== 0 ? "border-t border-gray-50" : ""}`}
                         >
-                          {/* Product info */}
-                          <div className="flex items-center gap-4 min-w-0">
+                          {/* Product info — click opens the product detail modal */}
+                          <button
+                            onClick={() => setSelectedProduct(item.product)}
+                            aria-label={`View ${item.product.name} details`}
+                            className="flex items-center gap-4 min-w-0 text-left group hover:opacity-90 transition-opacity"
+                          >
                             <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-100 shrink-0">
                               {item.product.image ? (
                                 <Image src={item.product.image} alt={item.product.name} fill className="object-cover" unoptimized />
@@ -163,10 +168,10 @@ export default function CartPage() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-[#2C3A48] truncate">{item.product.name}</p>
+                              <p className="text-sm font-semibold text-[#2C3A48] truncate group-hover:text-[#E87B3A] transition-colors">{item.product.name}</p>
                               <p className="text-xs text-gray-400 mt-0.5">{item.product.category}</p>
                             </div>
-                          </div>
+                          </button>
 
                           {/* Quantity */}
                           <div className="flex items-center justify-center gap-2">

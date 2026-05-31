@@ -128,7 +128,8 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
   const [added, setAdded] = useState(false);
   const [ripple, setRipple] = useState(false);
   const minQty = product.moq ?? 1;
-  const step = product.moq ?? 1;
+  const step = product.step ?? product.moq ?? 1;
+  const maxQty = Math.min(product.stock, product.maxQty ?? product.stock);
   const [quantity, setQuantity] = useState(minQty);
   const [qtyInput, setQtyInput] = useState(String(minQty));
   useEffect(() => { setQtyInput(String(quantity)); }, [quantity]);
@@ -262,12 +263,14 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
             <span className="text-sm font-medium text-gray-400 ml-2">/ {product.unit ?? "pcs"}</span>
           </p>
 
-          {/* MOQ alert */}
-          {product.moq && product.moq > 1 && (
+          {/* MOQ / order constraints alert */}
+          {((product.moq && product.moq > 1) || product.maxQty) && (
             <div className="flex items-start gap-2 px-3 py-2 rounded-xl bg-amber-50 border border-amber-200">
               <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 shrink-0 mt-0.5">MOQ</span>
               <p className="text-xs text-amber-900 leading-snug">
-                Minimum order: <strong>{product.moq} {product.unit ?? "pcs"}</strong>. Quantity must be in increments of {product.moq}.
+                Minimum order: <strong>{minQty} {product.unit ?? "pcs"}</strong>
+                {product.maxQty ? <>, maximum <strong>{product.maxQty} {product.unit ?? "pcs"}</strong></> : null}
+                . Increments of {step} {product.unit ?? "pcs"}.
               </p>
             </div>
           )}
@@ -303,7 +306,7 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
                   onBlur={() => {
                     const n = parseInt(qtyInput, 10);
                     const base = isNaN(n) || n < 1 ? minQty : n;
-                    const snapped = Math.max(minQty, Math.min(product.stock, Math.round(base / step) * step));
+                    const snapped = Math.max(minQty, Math.min(maxQty, Math.round(base / step) * step));
                     const final = snapped || minQty;
                     setQuantity(final);
                     setQtyInput(String(final));
@@ -313,8 +316,8 @@ function ModalInner({ product, onClose, onSelectRelated }: ModalInnerProps) {
                 <span className="text-[10px] text-gray-400 font-normal">{product.unit ?? "pcs"}</span>
               </div>
               <button
-                onClick={() => setQuantity((q) => Math.min(product.stock, q + step))}
-                disabled={quantity + step > product.stock}
+                onClick={() => setQuantity((q) => Math.min(maxQty, q + step))}
+                disabled={quantity + step > maxQty}
                 className="w-6 h-6 flex items-center justify-center rounded-full text-gray-500 hover:text-[#E87B3A] hover:bg-orange-50 transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-gray-500 disabled:hover:bg-transparent"
               >
                 <span className="text-base leading-none font-medium">+</span>

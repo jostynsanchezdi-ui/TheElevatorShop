@@ -24,14 +24,18 @@ export const useCart = create<CartState>()((set, get) => ({
   items: [],
   add: (product, quantity) =>
     set((s) => {
-      const step = product.moq ?? 1;
-      const qty = quantity ?? step;
+      const min = product.moq ?? 1;
+      const step = product.step ?? product.moq ?? 1;
+      const max = Math.min(product.stock, product.maxQty ?? product.stock);
+      const qty = quantity ?? min;
       const existing = s.items.find((i) => i.product.id === product.id);
       if (existing) {
-        const nextQty = Math.min(product.stock, existing.quantity + qty);
+        const nextQty = Math.min(max, existing.quantity + qty);
         return { items: s.items.map((i) => i.product.id === product.id ? { ...i, quantity: nextQty } : i) };
       }
-      return { items: [...s.items, { product, quantity: Math.min(product.stock, qty) }] };
+      // Suppress unused warning for step (only relevant for setQuantity logic)
+      void step;
+      return { items: [...s.items, { product, quantity: Math.min(max, Math.max(min, qty)) }] };
     }),
   remove: (id) => set((s) => ({ items: s.items.filter((i) => i.product.id !== id) })),
   clear: () => set({ items: [] }),
@@ -40,8 +44,9 @@ export const useCart = create<CartState>()((set, get) => ({
     set((s) => ({
       items: s.items.map((i) => {
         if (i.product.id !== id) return i;
-        const step = i.product.moq ?? 1;
-        if (i.quantity + step > i.product.stock) return i;
+        const step = i.product.step ?? i.product.moq ?? 1;
+        const max = Math.min(i.product.stock, i.product.maxQty ?? i.product.stock);
+        if (i.quantity + step > max) return i;
         return { ...i, quantity: i.quantity + step };
       }),
     })),
@@ -50,7 +55,7 @@ export const useCart = create<CartState>()((set, get) => ({
       items: s.items
         .map((i) => {
           if (i.product.id !== id) return i;
-          const step = i.product.moq ?? 1;
+          const step = i.product.step ?? i.product.moq ?? 1;
           return { ...i, quantity: i.quantity - step };
         })
         .filter((i) => i.quantity >= (i.product.moq ?? 1)),
@@ -59,10 +64,9 @@ export const useCart = create<CartState>()((set, get) => ({
     set((s) => ({
       items: s.items.map((i) => {
         if (i.product.id !== id) return i;
-        const step = i.product.moq ?? 1;
-        const min = step;
-        const max = i.product.stock;
-        // Snap to nearest valid step + clamp to [min, max]
+        const min = i.product.moq ?? 1;
+        const step = i.product.step ?? i.product.moq ?? 1;
+        const max = Math.min(i.product.stock, i.product.maxQty ?? i.product.stock);
         const snapped = Math.max(min, Math.min(max, Math.round(quantity / step) * step));
         return { ...i, quantity: snapped || min };
       }),
